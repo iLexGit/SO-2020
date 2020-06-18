@@ -8,7 +8,7 @@ void* startClient(void* arg){
     //FREE's
     return (void*)1;
 }
-//jordi viciat al clash
+
 //hola
 
 void* startServer(void* arg){
