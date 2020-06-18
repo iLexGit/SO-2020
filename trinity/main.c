@@ -9,8 +9,6 @@ void* startClient(void* arg){
     return (void*)1;
 }
 
-//hola
-
 void* startServer(void* arg){
     //printf("THREAD PER A GENERAR EL PROCÉS DE SERVIDOR\n");
     Conf* conf = (Conf*) arg;
