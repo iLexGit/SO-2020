@@ -8,6 +8,7 @@ void* startClient(void* arg){
     //FREE's
     return (void*)1;
 }
+//alejandrou
 
 void* startServer(void* arg){
     //printf("THREAD PER A GENERAR EL PROCÉS DE SERVIDOR\n");
