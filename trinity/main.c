@@ -1,6 +1,6 @@
 
 #include "main.h"
-
+//hola
 void* startClient(void* arg){
     //printf("THREAD PER GENERAL EL PROCÉS DE CLIENT\n");
     Conf* conf = (Conf*) arg;
