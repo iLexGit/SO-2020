@@ -1,0 +1,3 @@
+/home/kali/Downloads/trinity/cmake-build-debug/CMakeFiles/edit_cache.dir
+/home/kali/Downloads/trinity/cmake-build-debug/CMakeFiles/rebuild_cache.dir
+/home/kali/Downloads/trinity/cmake-build-debug/CMakeFiles/Practica_SO.dir
