@@ -20,7 +20,7 @@ int checkDomain(char* domain, struct in_addr* address){
 
 
 void scanConnections (char* domain, int start , int end, int self){
-    printf("Procedim a escanejar adreça %s tot els ports del rang %d => %d\n", domain, start, end);
+    //printf("Procedim a escanejar adreça %s tot els ports del rang %d => %d\n", domain, start, end);
     //char* puertos[2];
     int pfd[2];
     char* return_hijo;
@@ -43,7 +43,7 @@ void scanConnections (char* domain, int start , int end, int self){
         case 0: //fill
             
             
-            printf("soc el fill i acabo de enxier\n");
+            //printf("soc el fill i acabo de enxier\n");
             dup2 (pfd[1],1);
             
             execl("./show_connections.sh","",portInicial,portFinal,NULL);
@@ -59,7 +59,7 @@ void scanConnections (char* domain, int start , int end, int self){
             
             wait(NULL);
             close(pfd[1]);
-            printf("soc el pare i ara escriure\n");
+            //printf("soc el pare i ara escriure\n");
             
             while(1){
                 return_hijo = readUntil(pfd[0],'\n');

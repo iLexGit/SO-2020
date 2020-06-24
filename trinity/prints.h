@@ -31,7 +31,7 @@
 
 #define DOMAIN_ERR "[CLIENT_ERROR] No s'ha trobat el domini IP especificat\n"
 
-#define CONN_ERR_SERVER "[SERVER_ERROR] No s'ha pogut fer el connect\n"
+#define CONN_ERR_SERVER "[SERVER_ERROR] No s'ha pogut fer el accept del connect\n"
 
 #define CONN_THREAD_ERR "[SERVER_ERROR] No s'ha pogut crear un thread pel client que vol connectar-se\n"
 

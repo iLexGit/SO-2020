@@ -4,6 +4,16 @@
 
 #include "serverService.h"
 
+void* serverServiceThread_aux(void* arg){
+    //Conf* conf = (Conf*) arg;
+    //int* conn = (int*)arg;
+    serverThreadData* data = (serverThreadData*) arg;
+    int* conn = &(data->conn);
+    Conf* conf = data->config;
+    serverServiceThread(conf, *conn);
+    return (void*)1;
+}
+
 int serverService(Conf* conf){
     //Creem el socket
     int sockfd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
@@ -29,25 +39,40 @@ int serverService(Conf* conf){
 
     pthread_t* clients = (pthread_t*)malloc(sizeof(pthread_t));
     int client_num=0;
+    serverThreadData data;
     //Fem el accept
     while(1){
 
+        int connection = accept (sockfd, NULL, NULL);
 
-        int connection = accept (sockfd, (void*) &s_addr, (unsigned int*)sizeof(s_addr));
-            if (connection<0){
-                //write(1, CONN_ERR_SERVER, strlen(CONN_ERR_SERVER));
+        if (connection<0){
+                write(1, CONN_ERR_SERVER, strlen(CONN_ERR_SERVER));
                 //return -1;
 
-            }else{
-                //crear thread
-                //connectaServer(1, conf);
-                client_num++;
-                clients = (pthread_t*)realloc(clients, sizeof(clients)+sizeof(pthread_t));
-                //int client = pthread_create(&clients[client_num],NULL, clientConnection);
-                //if(clients[client_num] != 0){write(1, CONN_THREAD_ERR, strlen(CONN_THREAD_ERR));}
-                //else{gestionaClient();}
-            }
+        }else{
+            printf("Connect OK\t%d\n", connection);
+
+            //crear thread
+            //connectaServer(1, conf)
+            clients = (pthread_t*)realloc(clients, sizeof(clients)+sizeof(pthread_t));
+            data.config = conf;
+            data.conn = connection;
+            int client = pthread_create(&clients[client_num],NULL, serverServiceThread_aux, &data);
+            if(client != 0){write(1, CONN_THREAD_ERR, strlen(CONN_THREAD_ERR));}
+            else{client_num++;}
         }
+    }
 
     return 0;
 }
+
+void serverServiceThread(Conf* conf, int conn){
+    write(conn, "Hola\n", strlen("Hola"));
+    printf("%s\t%d\n",conf->name, conn);
+    //tramaStruct rx
+    while(1){
+    }
+}
+//void llegeixTrama(tramaStruct* rx){
+//
+//}
