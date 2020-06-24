@@ -46,6 +46,6 @@ typedef struct{
     char* header;
     char length[2];
     char* data;
-} Trama;
+}Trama;
 
 #endif //PRACTICA_SO_INCLUDES_H

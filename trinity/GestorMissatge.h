@@ -7,6 +7,8 @@
 
 char* generaTrama(int Opcio, char* data);
 
+Trama llegeixTrama(int);
+
 #define CON_CLI 1
 #define CON_SER_OK 2
 #define CON_SER_KO 22
