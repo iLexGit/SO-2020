@@ -73,6 +73,3 @@ void serverServiceThread(Conf* conf, int conn){
     while(1){
     }
 }
-//void llegeixTrama(tramaStruct* rx){
-//
-//}
