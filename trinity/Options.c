@@ -34,11 +34,16 @@ int whichCommand(char* comanda, Conf* conf, int* socket_client) {
             }
             else{
                 //AQuí toca fer el connect
-                char * trama = generaTrama(1, conf->name);
+                Trama trama = generaTrama(1, conf->name);
                 if (estableixConnexio(&(*socket_client), conf->direccio, atoi(word)) < 0){
                     write(1, SOCK_ERR_SERVER, strlen(SOCK_ERR_SERVER)); return 0;
                 }else{
-                    write(*socket_client, trama, strlen(trama));
+                    write(*socket_client, &trama.type, 1);
+                    write(*socket_client, trama.header, strlen(trama.header));
+                    write(*socket_client, &trama.length, 2);
+                    write(*socket_client, trama.data, trama.length);
+
+                    printf("%c\n%s\n%d\n%s\n", trama.type, trama.header, trama.length, trama.data);
                 }
 
             }

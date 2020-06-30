@@ -68,7 +68,7 @@ int serverService(Conf* conf){
 
 void serverServiceThread(Conf* conf, int conn){
     Trama Rx = llegeixTrama(conn);
-    printf("%c\n%s\n%s\n%s", Rx.type, Rx.header, Rx.length, Rx.data);
+    printf("%c\n%s\n%d\n%s\n", Rx.type, Rx.header, Rx.length, Rx.data);
 
 //    if(strcmp(Rx.header, ""))
 //    char* trama = generaTrama(CON_SER)

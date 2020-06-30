@@ -5,7 +5,7 @@
 #include "includes.h"
 #include "main.h"
 
-char* generaTrama(int Opcio, char* data);
+Trama generaTrama(int Opcio, char* data);
 
 Trama llegeixTrama(int);
 
