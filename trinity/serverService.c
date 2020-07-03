@@ -46,6 +46,11 @@ int serverService(Conf* conf){
         int connection = accept (sockfd, NULL, NULL);
 
         if (connection<0){
+                Trama Error = generaTrama(CON_SER_KO, '');
+                write(*socket_client, &Error.type, 1);
+                write(*socket_client, Error.header, strlen(trama.header));
+                write(*socket_client, &Error.length, 2);
+                write(*socket_client, Error.data, trama.length);
                 write(1, CONN_ERR_SERVER, strlen(CONN_ERR_SERVER));
                 //return -1;
 
@@ -69,6 +74,14 @@ int serverService(Conf* conf){
 void serverServiceThread(Conf* conf, int conn){
     Trama Rx = llegeixTrama(conn);
     printf("%c\n%s\n%d\n%s\n", Rx.type, Rx.header, Rx.length, Rx.data);
+
+    Trama tx = generaTrama(CON_SER_OK, conf->name);
+    write(*socket_client, &tx.type, 1);
+    write(*socket_client, tx.header, strlen(trama.header));
+    write(*socket_client, &tx.length, 2);
+    write(*socket_client, tx.data, trama.length);
+
+
 
 //    if(strcmp(Rx.header, ""))
 //    char* trama = generaTrama(CON_SER)

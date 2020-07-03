@@ -16,4 +16,9 @@
 
 int whichCommand(char *, Conf*, int*);
 
+typedef struct{
+    Connexio* connexions;
+    int port;
+}ClientThreadData;
+
 #endif //PRACTICA_SO_OPTIONS_H

@@ -46,6 +46,14 @@ typedef struct{
     char* header;
     int length;
     char* data;
-}Trama;
+} Trama;
+
+typedef struct{
+    char* name;
+    int port;
+    int fd;
+} Connexio;
+
+
 
 #endif //PRACTICA_SO_INCLUDES_H

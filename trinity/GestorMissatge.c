@@ -19,6 +19,7 @@ Trama generaTrama(int Opcio, char* data){
 			//String = (char*)malloc(sizeof(char) * (1 + strlen(CON_CLI_HEADER) + 2 + strlen(data) + 2));
 			//sprintf(String,"%c%s%c%c%s",type,CON_CLI_HEADER,llargada[0],llargada[1],data);
 			printf("%s\n",data);
+			trama.header = (char*) malloc(strlen(CON_CLI_HEADER) * sizeof(char) + 1);
 			trama.header = CON_CLI_HEADER;
 			trama.type = '1';
 			trama.length = strlen(data);
@@ -31,15 +32,23 @@ Trama generaTrama(int Opcio, char* data){
 		break;
 
 		case CON_SER_OK:
-			type = '1';
-			String = (char*)malloc(sizeof(char) * (1 + strlen(CON_SER_OK_HEADER) + 2 + strlen(data)));
+            trama.header = (char*) malloc(strlen(CON_SER_OK_HEADER) * sizeof(char) + 1);
+            trama.header = CON_SER_OK_HEADER;
+            trama.type = '1';
+            trama.length = strlen(data);
+            trama.data = (char*) malloc(trama.length * sizeof(char) + 1);
+            strcpy(trama.data,data);
+
 			//sprintf(String,"%c%s%c%c%s",type,CON_CLI_HEADER,llargada[0],llargada[1],data);
 		break;		
 
 		case CON_SER_KO:
-			type = '1';
-			String = (char*)malloc(sizeof(char) * (1 + strlen(CON_SER_KO_HEADER)));
-			//sprintf(String,"%c%s%c%c",type,CON_CLI_HEADER,llargada[0],llargada[1]);
+            trama.header = (char*) malloc(strlen(CON_SER_KO_HEADER) * sizeof(char) + 1);
+            trama.header = CON_SER_KO_HEADER;
+            trama.type = '1';
+            trama.length = strlen(data);
+            trama.data = (char*) malloc(trama.length * sizeof(char) + 1);
+            strcpy(trama.data,data);
 
 		break;
 
@@ -69,10 +78,12 @@ Trama llegeixTrama(int conn){
     int a,b;
     read(conn, &trama.type, 1);
     trama.header = readUntil(conn, ']');
+    trama.header = (char*)realloc(trama.header,sizeof(char) * (strlen(trama.header) + 1));
+    trama.header[strlen(trama.header)] = ']'
     read(conn, &trama.length,2);
     trama.data = (char*) malloc(trama.length * sizeof(char) + 1);
-    trama.data[trama.length] = '\0';
-    read(conn, &trama.data, trama.length);
+    //trama.data[trama.length] = '\0';
+    read(conn, trama.data, trama.length);
 
     printf("%d\n",trama.length);
     printf("Heloo\n");

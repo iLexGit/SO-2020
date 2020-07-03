@@ -4,8 +4,24 @@
 
 #include "Options.h"
 
-int whichCommand(char* comanda, Conf* conf, int* socket_client) {
+void* esperaSrvaux(void* arg){
+    //Conf* conf = (Conf*) arg;
+    //int* conn = (int*)arg;
+    ClientThreadData* data = (ClientThreadData*) arg;
+    int* conn = &(data->conn);
+    Conf* conf = data->config;
+    serverServiceThread(conf, *conn);
+    return (void*)1;
+}
+
+
+//int whichCommand(char* comanda, Conf* conf, int* socket_client) {
+int whichCommand(char* comanda, Conf* conf, Connexio* connexions) {
     char *word = selectWord(1, comanda);
+    //Connexio connexions [10]; // els 10 ports assignats
+    Connexio connexio;
+
+
     if (strcmp(word, "SHOW") == 0) {
         free(word);
         word = selectWord(2, comanda);
@@ -35,15 +51,31 @@ int whichCommand(char* comanda, Conf* conf, int* socket_client) {
             else{
                 //AQuí toca fer el connect
                 Trama trama = generaTrama(1, conf->name);
-                if (estableixConnexio(&(*socket_client), conf->direccio, atoi(word)) < 0){
+                //if (estableixConnexio(&(*socket_client), conf->direccio, atoi(word)) < 0){
+                if (estableixConnexio(connexions, conf->direccio, atoi(word)) < 0){
                     write(1, SOCK_ERR_SERVER, strlen(SOCK_ERR_SERVER)); return 0;
                 }else{
-                    write(*socket_client, &trama.type, 1);
+
+                    //Connecta();
+
+                    /*write(*socket_client, &trama.type, 1);
                     write(*socket_client, trama.header, strlen(trama.header));
                     write(*socket_client, &trama.length, 2);
-                    write(*socket_client, trama.data, trama.length);
+                    write(*socket_client, trama.data, trama.length);*/
 
+                    write(connexions[port%10].sockfd, &trama.type, 1);
+                    write(connexions[port%10].sockfd, trama.header, strlen(trama.header));
+                    write(connexions[port%10].sockfd, &trama.length, 2);
+                    write(connexions[port%10].sockfd, trama.data, trama.length);
+
+                    pthread esperaresposta;
                     printf("%c\n%s\n%d\n%s\n", trama.type, trama.header, trama.length, trama.data);
+                    connexio.port = port;
+                    connexio.sockfd = connexions[port%10].sockfd;
+                    if(!pthread_create (&esperaresposta, NULL, esperaSrvaux, connexio);){
+                        //error en el thread
+                    }
+
                 }
 
             }
