@@ -3,12 +3,13 @@
 void connectaClient(int port, Conf* conf){
     printf("estás en connexión\n");
     //connect to the port specified in the attributes of the function
-    char* trama;
+    Trama trama;
     char* data;
     data = (char*)malloc(sizeof(char) * (strlen(conf->name) + 2));
     sprintf(data,"[%s]",conf->name);
-    trama = generaTrama(CON_CLI,data);
-    printf("%s\n",trama );
+    trama = generaTrama(1,data);
+    //printf("%s\n",trama.data );
+    printf("ConnectaClient.c\n");
 }
 
 

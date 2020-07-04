@@ -4,22 +4,15 @@
 
 #include "Options.h"
 
-void* esperaSrvaux(void* arg){
-    //Conf* conf = (Conf*) arg;
-    //int* conn = (int*)arg;
-    ClientThreadData* data = (ClientThreadData*) arg;
-    int* conn = &(data->conn);
-    Conf* conf = data->config;
-    serverServiceThread(conf, *conn);
-    return (void*)1;
-}
+
 
 
 //int whichCommand(char* comanda, Conf* conf, int* socket_client) {
 int whichCommand(char* comanda, Conf* conf, Connexio* connexions) {
     char *word = selectWord(1, comanda);
+    int i =0;
     //Connexio connexions [10]; // els 10 ports assignats
-    Connexio connexio;
+
 
 
     if (strcmp(word, "SHOW") == 0) {
@@ -50,7 +43,9 @@ int whichCommand(char* comanda, Conf* conf, Connexio* connexions) {
             }
             else{
                 //AQuí toca fer el connect
+                printf("abans generatrama\n");
                 Trama trama = generaTrama(1, conf->name);
+                printf("despresgeneratrama\n");
                 //if (estableixConnexio(&(*socket_client), conf->direccio, atoi(word)) < 0){
                 if (estableixConnexio(connexions, conf->direccio, atoi(word)) < 0){
                     write(1, SOCK_ERR_SERVER, strlen(SOCK_ERR_SERVER)); return 0;
@@ -63,17 +58,28 @@ int whichCommand(char* comanda, Conf* conf, Connexio* connexions) {
                     write(*socket_client, &trama.length, 2);
                     write(*socket_client, trama.data, trama.length);*/
 
-                    write(connexions[port%10].sockfd, &trama.type, 1);
-                    write(connexions[port%10].sockfd, trama.header, strlen(trama.header));
-                    write(connexions[port%10].sockfd, &trama.length, 2);
-                    write(connexions[port%10].sockfd, trama.data, trama.length);
+                    printf("filedescriptor es %d\n",connexions[4].fd);
 
-                    pthread esperaresposta;
+                    write(connexions[port%10].fd, &trama.type, 1);
+                    write(connexions[port%10].fd, trama.header, strlen(trama.header));
+                    write(connexions[port%10].fd, &trama.length, 2);
+                    write(connexions[port%10].fd, trama.data, trama.length);
+
+
                     printf("%c\n%s\n%d\n%s\n", trama.type, trama.header, trama.length, trama.data);
-                    connexio.port = port;
-                    connexio.sockfd = connexions[port%10].sockfd;
-                    if(!pthread_create (&esperaresposta, NULL, esperaSrvaux, connexio);){
-                        //error en el thread
+
+                    sleep(1);
+                    Trama Rx = llegeixTrama(connexions[port%10].fd);
+                    printf("%c\n%s\n%d\n%s\n", Rx.type, Rx.header, Rx.length, Rx.data);
+
+                    if (!strcmp(Rx.header,CON_SER_OK_HEADER) ){
+                        connexions[port%10].name = (char*) malloc(Rx.length * sizeof(char) + 1);
+                        strcpy(connexions[port%10].name,Rx.data);
+                        connexions[port%10].port = port;
+
+                    }
+                    else{
+                        connexions[port%10].fd = 0;
                     }
 
                 }
@@ -97,7 +103,25 @@ int whichCommand(char* comanda, Conf* conf, Connexio* connexions) {
 
             printf("Say reconegut => user: %s\tmissatge: '%s'\n", user, message);
 
-            write(*socket_client, message, strlen(message));
+            for (i=4;i<10;i++){
+                if (strcmp(connexions[i].name,user)==0){
+                    Trama say = generaTrama(SAY_CLI, message);
+
+                    write(connexions[i].fd, &say.type, 1);
+                    write(connexions[i].fd, say.header, strlen(say.header));
+                    write(connexions[i].fd, say.length, 2);
+                    write(connexions[i].fd, say.data, say.length);
+
+
+
+                    printf("%c\n%s\n%d\n%s\n", say.type, say.header, say.length, say.data);
+
+                    break;
+
+                }
+            }
+
+            //write(*socket_client, message, strlen(message));
 
             free(user);free(message);
             free(comanda);

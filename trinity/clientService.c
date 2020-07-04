@@ -29,20 +29,21 @@ int estableixConnexio(Connexio* connexions, char* dir, int port) {
         inet_aton(dir, &s_addr.sin_addr);
 
         return connect(*sockfd, (void *) &s_addr, (unsigned int) sizeof(s_addr));*/
-    connexions[port%10].sockfd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-    if (connexions[port%10].sockfd < 0) { write(1, SOCK_ERR_CLIENT, strlen(SOCK_ERR_CLIENT)); }
+    connexions[port%10].fd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+    if (connexions[port%10].fd < 0) { write(1, SOCK_ERR_CLIENT, strlen(SOCK_ERR_CLIENT)); }
     //Struct pel socket
     struct sockaddr_in s_addr;
     memset(&s_addr, 0, sizeof(s_addr));
     s_addr.sin_family = AF_INET;
     s_addr.sin_port = htons(port);
     inet_aton(dir, &s_addr.sin_addr);
+    printf("ClientService\n");
 
-    return connect(connexions[port%10], (void *) &s_addr, (unsigned int) sizeof(s_addr));
+    return connect(connexions[port%10].fd, (void *) &s_addr, (unsigned int) sizeof(s_addr));
 
     }
 
-
+/*
 
 void* serverServiceThread(void* arg){
     Connexio connexio = (Connexio*) arg;
@@ -56,4 +57,4 @@ void* serverServiceThread(void* arg){
     serverServiceThread(conf, *conn);
     return (void*)1;
 }
-
+*/

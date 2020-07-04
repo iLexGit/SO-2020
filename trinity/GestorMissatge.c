@@ -18,26 +18,30 @@ Trama generaTrama(int Opcio, char* data){
 
 			//String = (char*)malloc(sizeof(char) * (1 + strlen(CON_CLI_HEADER) + 2 + strlen(data) + 2));
 			//sprintf(String,"%c%s%c%c%s",type,CON_CLI_HEADER,llargada[0],llargada[1],data);
-			printf("%s\n",data);
+			printf("printf de data %s\n",data);
 			trama.header = (char*) malloc(strlen(CON_CLI_HEADER) * sizeof(char) + 1);
-			trama.header = CON_CLI_HEADER;
+			//trama.header = CON_CLI_HEADER;
+			strcpy(trama.header,CON_CLI_HEADER);
 			trama.type = '1';
 			trama.length = strlen(data);
 			trama.data = (char*) malloc(trama.length * sizeof(char) + 1);
 			strcpy(trama.data,data);
-			printf("%s\n",trama.data);
+			printf("printf de trama.data generatrama %s\n",trama.data);
 
 
 
 		break;
 
 		case CON_SER_OK:
+            printf("printf de data %s\n",data);
             trama.header = (char*) malloc(strlen(CON_SER_OK_HEADER) * sizeof(char) + 1);
-            trama.header = CON_SER_OK_HEADER;
+            strcpy(trama.header,CON_SER_OK_HEADER);
+            //trama.header = CON_SER_OK_HEADER;
             trama.type = '1';
             trama.length = strlen(data);
             trama.data = (char*) malloc(trama.length * sizeof(char) + 1);
             strcpy(trama.data,data);
+            printf("printf de trama.data generatrama %s\n",trama.data);
 
 			//sprintf(String,"%c%s%c%c%s",type,CON_CLI_HEADER,llargada[0],llargada[1],data);
 		break;		
@@ -46,15 +50,26 @@ Trama generaTrama(int Opcio, char* data){
             trama.header = (char*) malloc(strlen(CON_SER_KO_HEADER) * sizeof(char) + 1);
             trama.header = CON_SER_KO_HEADER;
             trama.type = '1';
-            trama.length = strlen(data);
-            trama.data = (char*) malloc(trama.length * sizeof(char) + 1);
-            strcpy(trama.data,data);
+            trama.length = 0;
+            /*trama.data = (char*) malloc(trama.length * sizeof(char) + 1);
+            strcpy(trama.data,data);*/
 
 		break;
 
 		case SAY_CLI:
             if (strlen(data) > 180){
                 //return "Missatge massa llarg";
+            }
+            else{
+                printf("printf de data %s\n",data);
+                trama.header = (char*) malloc(strlen(CON_SER_CLI_HEADER) * sizeof(char) + 1);
+                strcpy(trama.header,CON_SER_CLI_HEADER);
+                //trama.header = CON_SER_OK_HEADER;
+                trama.type = '2';
+                trama.length = strlen(data);
+                trama.data = (char*) malloc(trama.length * sizeof(char) + 1);
+                strcpy(trama.data,data);
+                printf("printf de trama.data generatrama %s\n",trama.data);
             }
             break;
 
@@ -77,9 +92,11 @@ Trama llegeixTrama(int conn){
     char aux;
     int a,b;
     read(conn, &trama.type, 1);
+
     trama.header = readUntil(conn, ']');
     trama.header = (char*)realloc(trama.header,sizeof(char) * (strlen(trama.header) + 1));
-    trama.header[strlen(trama.header)] = ']'
+    trama.header[strlen(trama.header)] = ']';
+
     read(conn, &trama.length,2);
     trama.data = (char*) malloc(trama.length * sizeof(char) + 1);
     //trama.data[trama.length] = '\0';

@@ -14,11 +14,8 @@
 #include "StringProcess.h"
 #include "Connecta.h"
 
-int whichCommand(char *, Conf*, int*);
+int whichCommand(char *, Conf*, Connexio*);
 
-typedef struct{
-    Connexio* connexions;
-    int port;
-}ClientThreadData;
+
 
 #endif //PRACTICA_SO_OPTIONS_H

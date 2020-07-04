@@ -46,11 +46,11 @@ int serverService(Conf* conf){
         int connection = accept (sockfd, NULL, NULL);
 
         if (connection<0){
-                Trama Error = generaTrama(CON_SER_KO, '');
-                write(*socket_client, &Error.type, 1);
-                write(*socket_client, Error.header, strlen(trama.header));
-                write(*socket_client, &Error.length, 2);
-                write(*socket_client, Error.data, trama.length);
+                Trama Error = generaTrama(CON_SER_KO, "");
+                write(sockfd, &Error.type, 1);
+                write(sockfd, Error.header, strlen(CON_SER_KO_HEADER));
+                write(sockfd, &Error.length, 2);
+                write(sockfd, Error.data, Error.length);
                 write(1, CONN_ERR_SERVER, strlen(CONN_ERR_SERVER));
                 //return -1;
 
@@ -75,11 +75,16 @@ void serverServiceThread(Conf* conf, int conn){
     Trama Rx = llegeixTrama(conn);
     printf("%c\n%s\n%d\n%s\n", Rx.type, Rx.header, Rx.length, Rx.data);
 
+
+    printf("eyaaaaaaaa\n");
+
     Trama tx = generaTrama(CON_SER_OK, conf->name);
-    write(*socket_client, &tx.type, 1);
-    write(*socket_client, tx.header, strlen(trama.header));
-    write(*socket_client, &tx.length, 2);
-    write(*socket_client, tx.data, trama.length);
+    write(conn, &tx.type, 1);
+    write(conn, tx.header, strlen(CON_SER_OK_HEADER));
+    write(conn, &tx.length, 2);
+    write(conn, tx.data, tx.length);
+
+    printf("%c\n%s\n%d\n%s\n", tx.type, tx.header, tx.length, tx.data);
 
 
 
@@ -89,5 +94,18 @@ void serverServiceThread(Conf* conf, int conn){
 //    printf("%s\t%d\n",conf->name, conn);
 //    //tramaStruct rx
     while(1){
+        printf("abans llegeixtrama\n");
+        Trama recepcio = llegeixTrama(conn);
+        printf("despres llegeixtrama\n");
+        printf("%c\n%s\n%d\n%s\n", recepcio.type, recepcio.header, recepcio.length, recepcio.data);
+        switch(atoi(Rx.type)){
+            case 1:
+
+                break;
+            case 2:
+                printf("%s     %s-\n",Rx.data,recepcio.data);
+
+
+        }
     }
 }
