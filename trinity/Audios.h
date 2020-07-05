@@ -1,6 +1,3 @@
-//
-// Created by root on 11/1/19.
-//
 
 #ifndef PRACTICA_SO_SHOWCONNECTIONS_H
 #define PRACTICA_SO_SHOWCONNECTIONS_H
@@ -13,8 +10,5 @@
 #include "serverService.h"
 #include "StringProcess.h"
 
-int checkDomain(char*, struct in_addr*);
-
-void scanConnections(char*, int, int, int,Connexio*);
 
 #endif //PRACTICA_SO_SHOWCONNECTIONS_H

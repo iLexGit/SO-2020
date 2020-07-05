@@ -16,6 +16,8 @@ Trama llegeixTrama(int);
 #define SAY_SER 4
 #define BROAD_CLI 5
 #define BROAD_SER 6
+#define SHAUDIO_CLI 5
+#define SHAUDIO_SER 6
 
 
 
@@ -24,5 +26,7 @@ Trama llegeixTrama(int);
 #define CON_SER_KO_HEADER "[CONKO]"
 #define CON_CLI_SAY_HEADER "[MSG]"
 #define CON_SER_SAY_HEADER "[MSGOK]"
+#define SHAUDIO_CLI_HEADER "[SHOW_AUDIOS]"
+#define SHAUDIO_SER_HEADER "[LIST_AUDIOS]"
 
 #endif

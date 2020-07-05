@@ -8,7 +8,7 @@
 
 
 //int whichCommand(char* comanda, Conf* conf, int* socket_client) {
-int whichCommand(char* comanda, Conf* conf, Connexio* connexions) {
+int whichCommand(char* comanda, Conf* conf, Connexio connexions [10]) {
     char *word = selectWord(1, comanda);
     int i =0;
     Trama Rx;
@@ -22,12 +22,27 @@ int whichCommand(char* comanda, Conf* conf, Connexio* connexions) {
         word = selectWord(2, comanda);
         if (strcmp(word, "CONNECTIONS") == 0) {
             free(word);
-            //printf("Show connections reconegut\n");
-            scanConnections(conf->direccio, conf->port_list_inicial, conf->port_list_final, conf->port);
+            printf("Show connections reconegut\n");
+            scanConnections(conf->direccio, conf->port_list_inicial, conf->port_list_final, conf->port, &connexions);
             free(comanda);
             return 0;
         } else if (strcmp(word, "AUDIOS") == 0) {
             free(word);
+            char* user = selectWord(3,comanda);
+            for (i=0;i<10;i++) {
+                if (connexions[i].name != NULL) {
+                    if (strcmp(connexions[i].name, user) == 0) {
+                        Trama shaudios= generaTrama(SHAUDIO_CLI,"");
+                        write(connexions[i].fd, &shaudios.type, 1);
+                        write(connexions[i].fd, shaudios.header, strlen(shaudios.header));
+                        write(connexions[i].fd, &shaudios.length, 2);
+
+                        Trama Rx = llegeixTrama(connexions[i].fd);
+                        write(1,Rx.data,Rx.length);
+                        write(1,"\n",1);
+                    }
+                }
+            }
             //printf("Show audios reconegut\n");
             free(comanda);
             return 0;
