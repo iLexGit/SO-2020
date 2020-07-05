@@ -44,7 +44,7 @@ typedef struct{
 typedef struct{
     char type;
     char* header;
-    int length;
+    short length;
     char* data;
 } Trama;
 

@@ -1,1 +1,0 @@
-/usr/bin/cc -g   CMakeFiles/Practica_SO.dir/main.c.o CMakeFiles/Practica_SO.dir/StringProcess.c.o CMakeFiles/Practica_SO.dir/Options.c.o CMakeFiles/Practica_SO.dir/showConnections.c.o CMakeFiles/Practica_SO.dir/serverService.c.o CMakeFiles/Practica_SO.dir/clientService.c.o  -o Practica_SO 

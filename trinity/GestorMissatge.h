@@ -22,6 +22,7 @@ Trama llegeixTrama(int);
 #define CON_CLI_HEADER "[TR_NAME]"
 #define CON_SER_OK_HEADER "[CONOK]"
 #define CON_SER_KO_HEADER "[CONKO]"
-#define CON_SER_CLI_HEADER "[MSG]"
+#define CON_CLI_SAY_HEADER "[MSG]"
+#define CON_SER_SAY_HEADER "[MSGOK]"
 
 #endif

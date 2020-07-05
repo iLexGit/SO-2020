@@ -71,8 +71,9 @@ int serverService(Conf* conf){
     return 0;
 }
 
-void serverServiceThread(Conf* conf, int conn){
+_Noreturn void serverServiceThread(Conf* conf, int conn){
     Trama Rx = llegeixTrama(conn);
+    char *String;
     printf("%c\n%s\n%d\n%s\n", Rx.type, Rx.header, Rx.length, Rx.data);
 
 
@@ -98,14 +99,24 @@ void serverServiceThread(Conf* conf, int conn){
         Trama recepcio = llegeixTrama(conn);
         printf("despres llegeixtrama\n");
         printf("%c\n%s\n%d\n%s\n", recepcio.type, recepcio.header, recepcio.length, recepcio.data);
-        switch(atoi(Rx.type)){
+        switch(recepcio.type - '0'){
             case 1:
 
                 break;
+
             case 2:
-                printf("%s     %s-\n",Rx.data,recepcio.data);
+                //printf("%s     %s-\n",Rx.data,recepcio.data);
+                String = (char *) malloc(sizeof(char) * (5 + strlen(Rx.data) + strlen(recepcio.data)));
+                sprintf(String,"[%s]:\t%s\n",Rx.data,recepcio.data);
+                write(1,String,strlen(String));
+                Trama Tx = generaTrama(SAY_SER,"");
+                printf("%c\n%s\n%d\n%s\n", Tx.type, Tx.header, Tx.length, Tx.data);
+                write(conn, &Tx.type, 1);
+                write(conn, Tx.header, strlen(CON_SER_SAY_HEADER));
+                write(conn, &Tx.length, 2);
+                write(conn, Tx.data, tx.length);
 
-
+               break;
         }
     }
 }

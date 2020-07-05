@@ -62,8 +62,8 @@ Trama generaTrama(int Opcio, char* data){
             }
             else{
                 printf("printf de data %s\n",data);
-                trama.header = (char*) malloc(strlen(CON_SER_CLI_HEADER) * sizeof(char) + 1);
-                strcpy(trama.header,CON_SER_CLI_HEADER);
+                trama.header = (char*) malloc(strlen(CON_CLI_SAY_HEADER) * sizeof(char) + 1);
+                strcpy(trama.header,CON_CLI_SAY_HEADER);
                 //trama.header = CON_SER_OK_HEADER;
                 trama.type = '2';
                 trama.length = strlen(data);
@@ -73,7 +73,14 @@ Trama generaTrama(int Opcio, char* data){
             }
             break;
 
-		case SAY_SER:	
+		case SAY_SER:
+            trama.header = (char*) malloc(strlen(CON_SER_SAY_HEADER) * sizeof(char) + 1);
+            strcpy(trama.header,CON_SER_SAY_HEADER);
+            //trama.header = CON_SER_OK_HEADER;
+            trama.type = '2';
+            trama.length = 0;
+            //trama.data = (char*) malloc(trama.length * sizeof(char) + 1);
+            //strcpy(trama.data,data);
 		break;
 
 
@@ -94,8 +101,10 @@ Trama llegeixTrama(int conn){
     read(conn, &trama.type, 1);
 
     trama.header = readUntil(conn, ']');
-    trama.header = (char*)realloc(trama.header,sizeof(char) * (strlen(trama.header) + 1));
+    trama.header = (char*)realloc(trama.header,sizeof(char) * (strlen(trama.header)) + 1);
+    trama.header[strlen(trama.header)+1] = '\0';
     trama.header[strlen(trama.header)] = ']';
+
 
     read(conn, &trama.length,2);
     trama.data = (char*) malloc(trama.length * sizeof(char) + 1);
