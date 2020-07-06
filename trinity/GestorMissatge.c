@@ -86,7 +86,7 @@ Trama generaTrama(int Opcio, char* data){
             trama.header = (char*) malloc(strlen(SHAUDIO_CLI_HEADER) * sizeof(char) + 1);
             strcpy(trama.header,SHAUDIO_CLI_HEADER);
             //trama.header = CON_SER_OK_HEADER;
-            trama.type = '3';
+            trama.type = '4';
             trama.length = 0;
             break;
 
@@ -100,6 +100,55 @@ Trama generaTrama(int Opcio, char* data){
             strcpy(trama.data,data);
 
             break;
+
+
+	    case DOWNLOAD_CLI:
+
+            trama.header = (char*) malloc(strlen(DOWNLOAD_CLI_HEADER) * sizeof(char) + 1);
+            strcpy(trama.header,DOWNLOAD_CLI_HEADER);
+
+            trama.type = '5';
+            trama.length = strlen(data);
+            trama.data = (char*) malloc(trama.length * sizeof(char) + 1);
+            strcpy(trama.data,data);
+
+
+            break;
+
+	    case DOWNLOAD_SER_DATA:
+            trama.header = (char*) malloc(strlen(DOWNLOAD_SER_DATA_HEADER) * sizeof(char) + 1);
+            strcpy(trama.header,DOWNLOAD_SER_DATA_HEADER);
+
+            trama.type = '5';
+            trama.length = strlen(data);
+            trama.data = (char*) malloc(trama.length * sizeof(char) + 1);
+            strcpy(trama.data,data);
+	        break;
+
+	    case DOWNLOAD_SER_EOF:
+            trama.header = (char*) malloc(strlen(DOWNLOAD_SER_EOF_HEADER) * sizeof(char) + 1);
+            strcpy(trama.header,DOWNLOAD_SER_EOF_HEADER);
+
+            trama.type = '5';
+            trama.length = strlen(data);
+            trama.data = (char*) malloc(trama.length * sizeof(char) + 1);
+            strcpy(trama.data,data);
+	        break;
+
+
+	    case DOWNLOAD_SER_ERR:
+            trama.header = (char*) malloc(strlen(DOWNLOAD_SER_ERR_HEADER) * sizeof(char) + 1);
+            strcpy(trama.header,DOWNLOAD_SER_ERR_HEADER);
+
+            trama.type = '5';
+            trama.length = strlen(data);
+            trama.data = (char*) malloc(trama.length * sizeof(char) + 1);
+            strcpy(trama.data,data);
+	        break;
+
+
+
+
 
 	
 	}

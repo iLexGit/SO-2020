@@ -18,8 +18,10 @@ Trama llegeixTrama(int);
 #define BROAD_SER 6
 #define SHAUDIO_CLI 5
 #define SHAUDIO_SER 6
-
-
+#define DOWNLOAD_CLI 7
+#define DOWNLOAD_SER_ERR 8
+#define DOWNLOAD_SER_DATA 9
+#define DOWNLOAD_SER_EOF 10
 
 #define CON_CLI_HEADER "[TR_NAME]"
 #define CON_SER_OK_HEADER "[CONOK]"
@@ -28,5 +30,9 @@ Trama llegeixTrama(int);
 #define CON_SER_SAY_HEADER "[MSGOK]"
 #define SHAUDIO_CLI_HEADER "[SHOW_AUDIOS]"
 #define SHAUDIO_SER_HEADER "[LIST_AUDIOS]"
+#define DOWNLOAD_CLI_HEADER "[AUDIO_RQST]"
+#define DOWNLOAD_SER_ERR_HEADER "[AUDIO_KO]"
+#define DOWNLOAD_SER_DATA_HEADER "[AUDIO_RSPNS]"
+#define DOWNLOAD_SER_EOF_HEADER "[AUDIO_EOF]"
 
 #endif

@@ -83,6 +83,8 @@ int readConfigurationFile(char * path, Conf* conf){
 
 }
 
+
+
 char* selectWord(int n, char* texto){
 
     int i = 0;

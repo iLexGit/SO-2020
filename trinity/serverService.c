@@ -128,7 +128,11 @@ void serverServiceThread(Conf* conf, int conn){
                 //write(conn, Tx.data, tx.length);
 
                break;
-            case 3: {
+
+
+            case 3:
+                break;
+            case 4: {
                 Trama AudioList;
                 int i =0;
                 char* List = (char*) malloc(sizeof(char));
@@ -172,8 +176,105 @@ void serverServiceThread(Conf* conf, int conn){
                 break;
             }
 
-            case 4:
-                break;
+            case 5: {
+
+                printf("Rebut %s %s\n", recepcio.header, recepcio.data);
+
+                struct dirent *de;  // Pointer for directory entry
+                DIR *dr = opendir("../Audios1");
+                //DIR *dr = opendir(conf->audio_folder);
+                int i = 0;
+                int existeix = 0;
+                Trama Resposta;
+                int fd=-1;
+                char* path;
+                int endofile = 0;
+                char* info;
+                char caracter;
+                int j =0;
+
+                if (dr == NULL)  // opendir returns NULL if couldn't open directory
+                {
+                    printf("Could not open current directory\n" );
+                    //return 0;
+                }else {
+
+                    // Refer http://pubs.opengroup.org/onlinepubs/7990989775/xsh/readdir.html
+                    // for readdir()
+                    while ((de = readdir(dr)) != NULL && !existeix) {
+                        if (i >= 2) {
+                            if (!strcmp(de->d_name, recepcio.data)) {
+                                existeix = 1;
+
+                            }
+                        }
+
+
+                        i++;
+                    }
+                    if (existeix){
+                        //Resposta = generaTrama(DOWNLOAD_SER_EOF,"");
+                        //write(conn, &Resposta.type, 1);
+                        //write(conn, Resposta.header, strlen(DOWNLOAD_SER_EOF_HEADER));
+                        //write(conn, &Resposta.length, 2);
+                        //write(conn, Resposta.data, Resposta.length);
+
+                        path = (char*) malloc(sizeof("../Audios1") + sizeof(recepcio.data) + 1);
+                        sprintf(path,"../Audios1/%s",recepcio.data);
+                        fd = open(path, O_RDONLY);
+
+                        //path = (char*) malloc(sizeof(conf->audio_folder) + sizeof(recepcio.data) + 1);
+                        //sprintf(path,"%s/%s",conf->audio_folder,recepcio.data);
+                        //fd = open(path, O_RDONLY);
+
+                        if (fd < 0) {
+                            write(1, FILE_NOT_FOUND_ERR, strlen(FILE_NOT_FOUND_ERR));
+                            endofile = 1;
+                        }
+                        else{
+
+                            while (!endofile){
+
+                                if (read(fd,caracter,1) == -1){
+                                    endofile = 1;
+                                }
+                                if (!endofile && j<20){
+                                    if (info == NULL){
+                                        info = (char*) malloc(1);
+                                    }else{
+                                        info = (char*) realloc(info,sizeof info + sizeof(char));
+                                    }
+                                    info[j] = caracter;
+                                    j++;
+
+                                }
+
+                            }
+
+                            if (!endofile){
+                                Resposta
+                            }
+
+                            close(fd);
+                        }
+
+                    }
+                    else{
+                        Resposta = generaTrama(DOWNLOAD_SER_ERR,"");
+                        write(conn, &Resposta.type, 1);
+                        write(conn, Resposta.header, strlen(DOWNLOAD_SER_ERR_HEADER));
+                        write(conn, &Resposta.length, 2);
+                        write(conn, Resposta.data, Resposta.length);
+                    }
+
+
+                    closedir(dr);
+
+
+                    break;
+                }
+
+            }
         }
     }
 }

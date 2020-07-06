@@ -169,7 +169,31 @@ int whichCommand(char* comanda, Conf* conf, Connexio connexions [10]) {
         char *audio = selectWord(3, comanda);
         if((strcmp(user, "ERROR")!=0) && (strcmp(audio, "ERROR")!=0)) {
 
-            //printf(("Donwload reconegut => usuari: %s\taudio: %s\n"), user, audio);
+            for (i=0;i<10;i++) {
+                if (connexions[i].name != NULL) {
+                    if (strcmp(connexions[i].name, user) == 0) {
+
+                        Trama Download = generaTrama(DOWNLOAD_CLI, audio);
+                        write(connexions[i].fd, &Download.type, 1);
+                        write(connexions[i].fd, Download.header, strlen(Download.header));
+                        write(connexions[i].fd, &Download.length, 2);
+                        write(connexions[i].fd, Download.data, Download.length);
+
+
+                        Trama Fitxer = llegeixTrama(connexions[i].fd);
+                        if (!strcmp(Fitxer.header,DOWNLOAD_SER_ERR_HEADER)){
+                            printf("el fitxer no existeix\n");
+                        }
+                        else{
+                            printf("el fitxer si existeix\n");
+                        }
+
+                    }
+                }
+            }
+
+
+
             free(user);free(audio);
             free(comanda);
             return 0;
