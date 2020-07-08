@@ -9,7 +9,7 @@ void connectaClient(int port, Conf* conf){
     sprintf(data,"[%s]",conf->name);
     trama = generaTrama(1,data);
     //printf("%s\n",trama.data );
-    printf("ConnectaClient.c\n");
+    //printf("ConnectaClient.c\n");
 }
 
 

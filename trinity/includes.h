@@ -29,6 +29,7 @@
 #include "showConnections.h"
 #include "StringProcess.h"*/
 
+#define Num_Connexions (int)(sizeof(connexions)/sizeof(Connexio))
 
 
 typedef struct{

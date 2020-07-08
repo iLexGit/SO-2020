@@ -77,7 +77,7 @@ _Noreturn void serverServiceThread(Conf* conf, int conn){
     printf("%c\n%s\n%d\n%s\n", Rx.type, Rx.header, Rx.length, Rx.data);
 
 
-    printf("eyaaaaaaaa\n");
+    //printf("eyaaaaaaaa\n");
 
     Trama tx = generaTrama(CON_SER_OK, conf->name);
     write(conn, &tx.type, 1);
@@ -95,9 +95,9 @@ _Noreturn void serverServiceThread(Conf* conf, int conn){
 //    printf("%s\t%d\n",conf->name, conn);
 //    //tramaStruct rx
     while(1){
-        printf("abans llegeixtrama\n");
+        //printf("abans llegeixtrama\n");
         Trama recepcio = llegeixTrama(conn);
-        printf("despres llegeixtrama\n");
+        //printf("despres llegeixtrama\n");
         printf("%c\n%s\n%d\n%s\n", recepcio.type, recepcio.header, recepcio.length, recepcio.data);
         switch(recepcio.type - '0'){
             case 1:
@@ -107,10 +107,10 @@ _Noreturn void serverServiceThread(Conf* conf, int conn){
             case 2:
                 //printf("%s     %s-\n",Rx.data,recepcio.data);
                 String = (char *) malloc(sizeof(char) * (5 + strlen(Rx.data) + strlen(recepcio.data)));
-                sprintf(String,"[%s]:\t%s\n",Rx.data,recepcio.data);
+                //sprintf(String,"[%s]:\t%s\n",Rx.data,recepcio.data);
                 write(1,String,strlen(String));
                 Trama Tx = generaTrama(SAY_SER,"");
-                printf("%c\n%s\n%d\n%s\n", Tx.type, Tx.header, Tx.length, Tx.data);
+                //printf("%c\n%s\n%d\n%s\n", Tx.type, Tx.header, Tx.length, Tx.data);
                 write(conn, &Tx.type, 1);
                 write(conn, Tx.header, strlen(CON_SER_SAY_HEADER));
                 write(conn, &Tx.length, 2);

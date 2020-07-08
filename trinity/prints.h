@@ -39,6 +39,8 @@
 
 #define INVALID_PORT "El port és invàlid"
 
+#define CLIENT_ALREADY_CONNECTED "Aquesta connexió ja ha estat establerta"
+
 
 
 #endif //PRACTICA_SO_PRINTS_H

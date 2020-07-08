@@ -18,7 +18,7 @@ Trama generaTrama(int Opcio, char* data){
 
 			//String = (char*)malloc(sizeof(char) * (1 + strlen(CON_CLI_HEADER) + 2 + strlen(data) + 2));
 			//sprintf(String,"%c%s%c%c%s",type,CON_CLI_HEADER,llargada[0],llargada[1],data);
-			printf("printf de data %s\n",data);
+			//printf("printf de data %s\n",data);
 			trama.header = (char*) malloc(strlen(CON_CLI_HEADER) * sizeof(char) + 1);
 			//trama.header = CON_CLI_HEADER;
 			strcpy(trama.header,CON_CLI_HEADER);
@@ -26,14 +26,14 @@ Trama generaTrama(int Opcio, char* data){
 			trama.length = strlen(data);
 			trama.data = (char*) malloc(trama.length * sizeof(char) + 1);
 			strcpy(trama.data,data);
-			printf("printf de trama.data generatrama %s\n",trama.data);
+			//printf("printf de trama.data generatrama %s\n",trama.data);
 
 
 
 		break;
 
 		case CON_SER_OK:
-            printf("printf de data %s\n",data);
+            //printf("printf de data %s\n",data);
             trama.header = (char*) malloc(strlen(CON_SER_OK_HEADER) * sizeof(char) + 1);
             strcpy(trama.header,CON_SER_OK_HEADER);
             //trama.header = CON_SER_OK_HEADER;
@@ -41,7 +41,7 @@ Trama generaTrama(int Opcio, char* data){
             trama.length = strlen(data);
             trama.data = (char*) malloc(trama.length * sizeof(char) + 1);
             strcpy(trama.data,data);
-            printf("printf de trama.data generatrama %s\n",trama.data);
+            //printf("printf de trama.data generatrama %s\n",trama.data);
 
 			//sprintf(String,"%c%s%c%c%s",type,CON_CLI_HEADER,llargada[0],llargada[1],data);
 		break;		
@@ -61,7 +61,7 @@ Trama generaTrama(int Opcio, char* data){
                 //return "Missatge massa llarg";
             }
             else{
-                printf("printf de data %s\n",data);
+                //printf("printf de data %s\n",data);
                 trama.header = (char*) malloc(strlen(CON_CLI_SAY_HEADER) * sizeof(char) + 1);
                 strcpy(trama.header,CON_CLI_SAY_HEADER);
                 //trama.header = CON_SER_OK_HEADER;
@@ -69,7 +69,7 @@ Trama generaTrama(int Opcio, char* data){
                 trama.length = strlen(data);
                 trama.data = (char*) malloc(trama.length * sizeof(char) + 1);
                 strcpy(trama.data,data);
-                printf("printf de trama.data generatrama %s\n",trama.data);
+                //printf("printf de trama.data generatrama %s\n",trama.data);
             }
             break;
 
@@ -111,8 +111,8 @@ Trama llegeixTrama(int conn){
     //trama.data[trama.length] = '\0';
     read(conn, trama.data, trama.length);
 
-    printf("%d\n",trama.length);
-    printf("Heloo\n");
+    //printf("%d\n",trama.length);
+    //printf("Heloo\n");
 
     //read(conn, &trama.length[0], 1);
 //    if(trama.length[0] == '0'){

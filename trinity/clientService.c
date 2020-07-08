@@ -6,7 +6,7 @@
 
 void clientService(Conf* conf){
     //int socket_client = -1;
-    Connexio connexions [10];
+    Connexio* connexions;
     char* comanda;
     char prompt[strlen(conf->name +3)];
     sprintf(prompt, "$%s: ", conf->name);
@@ -16,6 +16,17 @@ void clientService(Conf* conf){
     //}while(!whichCommand(comanda, conf, &socket_client));
     }while(!whichCommand(comanda, conf, connexions));
 }
+
+int weAreConnected(Connexio* connexions, int p) {
+    for (int i = 0; i < Num_Connexions; i++){
+        if (connexions[i].port == p){
+            write(1, CLIENT_ALREADY_CONNECTED, strlen(CLIENT_ALREADY_CONNECTED));
+            return 1;
+        }
+    }
+    return 0;
+}
+
 
 //int estableixConnexio(int* sockfd, char* dir, int port) {
 int estableixConnexio(Connexio* connexions, char* dir, int port) {
@@ -29,19 +40,21 @@ int estableixConnexio(Connexio* connexions, char* dir, int port) {
         inet_aton(dir, &s_addr.sin_addr);
 
         return connect(*sockfd, (void *) &s_addr, (unsigned int) sizeof(s_addr));*/
-    connexions[port%10].fd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-    if (connexions[port%10].fd < 0) { write(1, SOCK_ERR_CLIENT, strlen(SOCK_ERR_CLIENT)); }
-    //Struct pel socket
-    struct sockaddr_in s_addr;
-    memset(&s_addr, 0, sizeof(s_addr));
-    s_addr.sin_family = AF_INET;
-    s_addr.sin_port = htons(port);
-    inet_aton(dir, &s_addr.sin_addr);
-    printf("ClientService\n");
 
-    return connect(connexions[port%10].fd, (void *) &s_addr, (unsigned int) sizeof(s_addr));
-
+    if(!weAreConnected(connexions, port)){
+        connexions[port%10].fd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+        if (connexions[port%10].fd < 0) { write(1, SOCK_ERR_CLIENT, strlen(SOCK_ERR_CLIENT)); }
+        //Struct pel socket
+        struct sockaddr_in s_addr;
+        memset(&s_addr, 0, sizeof(s_addr));
+        s_addr.sin_family = AF_INET;
+        s_addr.sin_port = htons(port);
+        inet_aton(dir, &s_addr.sin_addr);
+        return connect(connexions[port%10].fd, (void *) &s_addr, (unsigned int) sizeof(s_addr));
     }
+    return -1;
+}
+
 
 /*
 

@@ -18,4 +18,6 @@ void clientService(Conf*);
 //int estableixConnexio(int*, char*, int);
 int estableixConnexio(Connexio*, char*, int);
 
+int weAreConnected(Connexio*, int);
+
 #endif //PRACTICA_SO_CLIENTSERVICE_H
