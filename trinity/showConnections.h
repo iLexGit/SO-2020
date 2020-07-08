@@ -15,6 +15,6 @@
 
 int checkDomain(char*, struct in_addr*);
 
-void scanConnections(char*, int, int, int);
+void scanConnections(char*, int, int, int,Connexio*);
 
 #endif //PRACTICA_SO_SHOWCONNECTIONS_H

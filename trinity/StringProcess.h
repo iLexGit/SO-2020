@@ -21,4 +21,6 @@ int readConfigurationFile(char* , Conf*);
 
 char* selectWord(int, char*);
 
+int SizeWord(int n, char* texto);
+
 #endif //PRACTICA_SO_STRINGPROCESS_H

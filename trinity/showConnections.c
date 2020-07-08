@@ -19,18 +19,22 @@ int checkDomain(char* domain, struct in_addr* address){
 
 
 
-void scanConnections (char* domain, int start , int end, int self){
+void scanConnections (char* domain, int start , int end, int self,Connexio connexions[10]){
     //printf("Procedim a escanejar adreça %s tot els ports del rang %d => %d\n", domain, start, end);
     //char* puertos[2];
     int pfd[2];
     char* return_hijo;
-    self++;
     char portInicial[5];
     char portFinal[5];
 
+    int i =0;
+    int j =0;
+    int k =0;
+    char* ports[10];
+
     sprintf(portInicial,"%d",start);
     sprintf(portFinal,"%d",end);
-
+    printf("akisi\n");
 
     if (pipe (pfd) < 0){
         write(1,ERRPipe,strlen(ERRPipe));
@@ -43,7 +47,7 @@ void scanConnections (char* domain, int start , int end, int self){
         case 0: //fill
             
             
-            //printf("soc el fill i acabo de enxier\n");
+            printf("soc el fill i acabo de enxier\n");
             dup2 (pfd[1],1);
             
             execl("./show_connections.sh","",portInicial,portFinal,NULL);
@@ -59,17 +63,43 @@ void scanConnections (char* domain, int start , int end, int self){
             
             wait(NULL);
             close(pfd[1]);
-            //printf("soc el pare i ara escriure\n");
+            printf("soc el pare i ara escriure\n");
             
             while(1){
+                //char* port;
                 return_hijo = readUntil(pfd[0],'\n');
                 if(!strcmp(return_hijo,"EOF")){
                     break;
                 }
-                write(1,return_hijo,strlen(return_hijo));
-                write(1,"\n",1);
+                ports[i]=selectWord(2, return_hijo);
+                i++;
+
+                //write(1,return_hijo,strlen(return_hijo));
+                //write(1,"\n",1);
 
             }
+
+            char* String = (char*)malloc(sizeof(char) * (strlen(" connections available\n") + sizeof(int)));
+            sprintf(String,"%d connections available\n",i-1);
+            write(1,String,strlen(String));
+            //write(1," connections available\n",strlen(" connections available\n"));
+            while(k<i){
+                int x = atoi(ports[k]);
+                if (x != self){
+                    write(1,ports[k],sizeof(ports[k]));
+                    if (connexions[x%10].name != NULL){
+                        printf("entrem?\t%s\n",connexions[x%10].name);
+                        write(1,"\t",1);
+                        write(1,connexions[x%10].name,strlen(connexions[x%10].name));
+                    }
+                    write(1,"\n",1);
+
+                }
+                k++;
+
+            }
+            //write(1,return_hijo,strlen(return_hijo));
+            //write(1,"\n",1);
             //read(pfd[0],return_hijo,strlen("soc el fill i ara moriré\n"));
             close(pfd[0]);
             

@@ -12,6 +12,7 @@
 #include "Options.h"
 #include "showConnections.h"
 #include "StringProcess.h"
+#include "Audios.h"
 
 typedef struct{
     Conf* config;
@@ -22,5 +23,5 @@ int serverService(Conf*);
 
 void* serverServiceThread_aux(void*);
 
-_Noreturn void serverServiceThread(Conf*, int);
+void serverServiceThread(Conf*, int);
 #endif //PRACTICA_SO_SERVERSERVICE_H
