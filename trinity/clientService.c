@@ -53,6 +53,7 @@ int estableixConnexio(Connexio* connexions, char* dir, int port) {
         return connect(connexions[port%10].fd, (void *) &s_addr, (unsigned int) sizeof(s_addr));
     }
     return -1;
+
 }
 
 
