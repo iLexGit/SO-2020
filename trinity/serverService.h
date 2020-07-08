@@ -12,6 +12,7 @@
 #include "Options.h"
 #include "showConnections.h"
 #include "StringProcess.h"
+#include "Audios.h"
 
 typedef struct{
     Conf* config;

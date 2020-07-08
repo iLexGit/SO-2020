@@ -23,7 +23,7 @@ int whichCommand(char* comanda, Conf* conf, Connexio connexions [10]) {
         if (strcmp(word, "CONNECTIONS") == 0) {
             free(word);
             printf("Show connections reconegut\n");
-            scanConnections(conf->direccio, conf->port_list_inicial, conf->port_list_final, conf->port, &connexions);
+            scanConnections(conf->direccio, conf->port_list_inicial, conf->port_list_final, conf->port, connexions);
             free(comanda);
             return 0;
         } else if (strcmp(word, "AUDIOS") == 0) {
@@ -37,7 +37,15 @@ int whichCommand(char* comanda, Conf* conf, Connexio connexions [10]) {
                         write(connexions[i].fd, shaudios.header, strlen(shaudios.header));
                         write(connexions[i].fd, &shaudios.length, 2);
 
+                        /*shaudios.header = (char*) realloc(shaudios.header,0);
+                        shaudios.data = (char*) realloc(shaudios.data,0);
+                        free(shaudios.header);
+                        free(shaudios.data);*/
+
+
                         Trama Rx = llegeixTrama(connexions[i].fd);
+                        printf("trama sh audios rebuda\n");
+                        printf("header %s  data %s\n",Rx.header,Rx.data);
                         write(1,Rx.data,Rx.length);
                         write(1,"\n",1);
                     }
@@ -82,6 +90,11 @@ int whichCommand(char* comanda, Conf* conf, Connexio connexions [10]) {
                     write(connexions[port%10].fd, &trama.length, 2);
                     write(connexions[port%10].fd, trama.data, trama.length);
 
+                    trama.header = (char*) realloc(trama.header,0);
+                    trama.data = (char*) realloc(trama.data,0);
+                    free(trama.header);
+                    free(trama.data);
+
 
 
 
@@ -114,8 +127,11 @@ int whichCommand(char* comanda, Conf* conf, Connexio connexions [10]) {
         free(word);
         char *user = selectWord(2, comanda);
         char *message = selectWord(3, comanda);
+        printf("options.c message %s\n",message);
+        printf("options.c user %s\n",user);
         if((strcmp(user, "ERROR")!=0) && (strcmp(message, "ERROR")!=0)){
-            free(message);
+
+            printf("holi\n");
 
             if(!readTextInput(comanda, message)){write(0, SENT_MESSAGE_ERR, strlen(SENT_MESSAGE_ERR)); free(user); return 0;}
 
@@ -124,14 +140,19 @@ int whichCommand(char* comanda, Conf* conf, Connexio connexions [10]) {
             for (i=0;i<10;i++){
                 if (connexions[i].name != NULL){
                     if (strcmp(connexions[i].name,user)==0) {
+                        printf("options.c message %s\n",message);
                         Trama say = generaTrama(SAY_CLI, message);
+                        free(message);
 
                         write(connexions[i].fd, &say.type, 1);
                         write(connexions[i].fd, say.header, strlen(say.header));
                         write(connexions[i].fd, &say.length, 2);
                         write(connexions[i].fd, say.data, say.length);
 
-
+                        say.header = (char*) realloc(say.header,0);
+                        say.data = (char*) realloc(say.data,0);
+                        free(say.header);
+                        free(say.data);
 
                         Trama MSGOK = llegeixTrama(connexions[i].fd);
 
@@ -167,6 +188,12 @@ int whichCommand(char* comanda, Conf* conf, Connexio connexions [10]) {
     } else if (strcmp(word, "DOWNLOAD") == 0) {
         char *user = selectWord(2, comanda);
         char *audio = selectWord(3, comanda);
+        int fd;
+        char * path;
+        char * sum;
+
+
+        /*char* test = checksum("../Audios1/uni");*/
         if((strcmp(user, "ERROR")!=0) && (strcmp(audio, "ERROR")!=0)) {
 
             for (i=0;i<10;i++) {
@@ -179,13 +206,56 @@ int whichCommand(char* comanda, Conf* conf, Connexio connexions [10]) {
                         write(connexions[i].fd, &Download.length, 2);
                         write(connexions[i].fd, Download.data, Download.length);
 
+                        Download.header = (char*) realloc(Download.header,0);
+                        Download.data = (char*) realloc(Download.data,0);
+                        free(Download.header);
+                        free(Download.data);
 
                         Trama Fitxer = llegeixTrama(connexions[i].fd);
                         if (!strcmp(Fitxer.header,DOWNLOAD_SER_ERR_HEADER)){
                             printf("el fitxer no existeix\n");
                         }
                         else{
-                            printf("el fitxer si existeix\n");
+                            //printf("el fitxer si existeix\n");
+
+                            //path = (char*) malloc(sizeof("../Audios2") + sizeof(audio) + 1);
+                            //sprintf(path,"../Audios1/%s",audio);
+                            //fd = open(path, O_WRONLY | O_CREAT);
+
+                            path = (char*) malloc(sizeof(conf->audio_folder) + sizeof(audio) + 1);
+                            sprintf(path,"%s/%s",conf->audio_folder,audio);
+                            printf("%s\n",path);
+                            fd = open(path, O_WRONLY | O_CREAT, 0755);
+
+                            if (fd < 0) {
+                                write(1, FILE_NOT_FOUND_ERR, strlen(FILE_NOT_FOUND_ERR));
+                            }
+                            else{
+                                while(strcmp(Fitxer.header,DOWNLOAD_SER_EOF_HEADER)){
+                                    printf("header %s data %s\n",Fitxer.header,Fitxer.data);
+                                    write(fd,Fitxer.data,Fitxer.length);
+                                    Fitxer = llegeixTrama(connexions[i].fd);
+
+                                }
+                                printf("EOF---> %s\n",Fitxer.data);
+
+
+
+                                close(fd);
+
+                                sum = checksum(path);
+
+                                if(strcmp(sum,Fitxer.data)){
+                                    //remove(path);
+                                    printf("esborrat\n");
+                                }
+
+
+
+                            }
+
+
+
                         }
 
                     }
@@ -196,6 +266,10 @@ int whichCommand(char* comanda, Conf* conf, Connexio connexions [10]) {
 
             free(user);free(audio);
             free(comanda);
+
+            //if(sum != NULL){free (sum);}
+            //if (path != NULL){free(path);}
+
             return 0;
         }
     } else if (strcmp(word, "EXIT") == 0) {

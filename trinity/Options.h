@@ -13,6 +13,7 @@
 #include "showConnections.h"
 #include "StringProcess.h"
 #include "Connecta.h"
+#include "Audios.h"
 
 int whichCommand(char *, Conf*, Connexio*);
 

@@ -59,6 +59,7 @@ Trama generaTrama(int Opcio, char* data){
 		case SAY_CLI:
             if (strlen(data) > 180){
                 //return "Missatge massa llarg";
+                printf("massa llarg\n");
             }
             else{
                 printf("printf de data %s\n",data);
@@ -153,7 +154,7 @@ Trama generaTrama(int Opcio, char* data){
 	
 	}
 	printf("estás en generatrama\n");
-	//printf("%s\n",String);
+	//printf("%s\n",trama.data);
 	return trama;
 
 
@@ -175,9 +176,10 @@ Trama llegeixTrama(int conn){
         printf("llegeixtrma2\n");
         read(conn, &trama.length, 2);
         trama.data = (char *) malloc(trama.length * sizeof(char) + 1);
-        //trama.data[trama.length] = '\0';
+
         if (trama.length != 0) {
             read(conn, trama.data, trama.length);
+            trama.data[trama.length] = '\0';
             printf("llegeixtrma3\n");
             printf("%d\n", trama.length);
             printf("Heloo\n");

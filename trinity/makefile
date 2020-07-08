@@ -2,8 +2,8 @@ CC=gcc
 CFLAGS=-lpthread -Wall -Wextra
 
 
-all: clientService.o main.o Options.o serverService.o showConnections.o StringProcess.o Connecta.o GestorMissatge.o
-	$(CC) clientService.o main.o Options.o serverService.o showConnections.o StringProcess.o Connecta.o GestorMissatge.o -o Trinity $(CFLAGS)
+all: clientService.o main.o Options.o serverService.o showConnections.o StringProcess.o Connecta.o GestorMissatge.o Audios.o
+	$(CC) clientService.o main.o Options.o serverService.o showConnections.o StringProcess.o Connecta.o GestorMissatge.o Audios.o -o Trinity $(CFLAGS)
 
 clientService.o: clientService.c
 	$(CC)  clientService.c -c $(CFLAGS)
@@ -28,3 +28,6 @@ Connecta.o: Connecta.c
 
 GestorMissatge.o: GestorMissatge.c
 	$(CC)  GestorMissatge.c -c $(CFLAGS)
+
+Audio.o: Audios.c
+	$(CC)  Audios.c -c $(CFLAGS)

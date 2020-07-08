@@ -8,7 +8,7 @@
 void* serverServiceThread_aux(void* arg){
     //Conf* conf = (Conf*) arg;
     //int* conn = (int*)arg;
-    printf("shconn?\n");
+    //printf("shconn?\n");
     serverThreadData* data = (serverThreadData*) arg;
     int* conn = &(data->conn);
     Conf* conf = data->config;
@@ -77,6 +77,7 @@ int serverService(Conf* conf){
 
 void serverServiceThread(Conf* conf, int conn){
     Trama Rx = llegeixTrama(conn);
+    Trama recepcio;
     char *String;
 
     if (Rx.type < '0' || Rx.type > '6'){
@@ -107,7 +108,13 @@ void serverServiceThread(Conf* conf, int conn){
 //    //tramaStruct rx
     while(1){
         printf("abans llegeixtrama\n");
-        Trama recepcio = llegeixTrama(conn);
+
+        recepcio.header = (char*) realloc(recepcio.header,0);
+        recepcio.data = (char*) realloc(recepcio.data,0);
+        free(recepcio.header);
+        free(recepcio.data);
+
+        recepcio = llegeixTrama(conn);
         printf("despres llegeixtrama\n");
         //printf("%c\n%s\n%d\n%s\n", recepcio.type, recepcio.header, recepcio.length, recepcio.data);
         switch(recepcio.type - '0'){
@@ -132,6 +139,7 @@ void serverServiceThread(Conf* conf, int conn){
 
             case 3:
                 break;
+
             case 4: {
                 Trama AudioList;
                 int i =0;
@@ -165,12 +173,13 @@ void serverServiceThread(Conf* conf, int conn){
                     for(int x=1;x<=strlen(List);x++){
                         List[x-1]=List[x];
                     }
-                    //printf("%s\n",List);
+                    printf("%s\n",List);
                     AudioList = generaTrama(SHAUDIO_SER,List);
                     write(conn, &AudioList.type, 1);
                     write(conn, AudioList.header, strlen(SHAUDIO_SER_HEADER));
                     write(conn, &AudioList.length, 2);
                     write(conn, AudioList.data, AudioList.length);
+                    printf("trama show audios enviada\n");
                 }
 
                 break;
@@ -181,15 +190,15 @@ void serverServiceThread(Conf* conf, int conn){
                 printf("Rebut %s %s\n", recepcio.header, recepcio.data);
 
                 struct dirent *de;  // Pointer for directory entry
-                DIR *dr = opendir("../Audios1");
-                //DIR *dr = opendir(conf->audio_folder);
+                //DIR *dr = opendir("../Audios1");
+                DIR *dr = opendir(conf->audio_folder);
                 int i = 0;
                 int existeix = 0;
                 Trama Resposta;
                 int fd=-1;
                 char* path;
                 int endofile = 0;
-                char* info;
+                char* lectura;
                 char caracter;
                 int j =0;
 
@@ -213,19 +222,16 @@ void serverServiceThread(Conf* conf, int conn){
                         i++;
                     }
                     if (existeix){
-                        //Resposta = generaTrama(DOWNLOAD_SER_EOF,"");
-                        //write(conn, &Resposta.type, 1);
-                        //write(conn, Resposta.header, strlen(DOWNLOAD_SER_EOF_HEADER));
-                        //write(conn, &Resposta.length, 2);
-                        //write(conn, Resposta.data, Resposta.length);
 
-                        path = (char*) malloc(sizeof("../Audios1") + sizeof(recepcio.data) + 1);
-                        sprintf(path,"../Audios1/%s",recepcio.data);
-                        fd = open(path, O_RDONLY);
 
-                        //path = (char*) malloc(sizeof(conf->audio_folder) + sizeof(recepcio.data) + 1);
-                        //sprintf(path,"%s/%s",conf->audio_folder,recepcio.data);
+                        //path = (char*) malloc(sizeof("../Audios1") + sizeof(recepcio.data) + 1);
+                        //sprintf(path,"../Audios1/%s",recepcio.data);
                         //fd = open(path, O_RDONLY);
+
+                        path = (char*) malloc(sizeof(conf->audio_folder) + sizeof(recepcio.data) + 1);
+                        sprintf(path,"%s/%s",conf->audio_folder,recepcio.data);
+                        printf("%s\n",path);
+                        fd = open(path, O_RDONLY);
 
                         if (fd < 0) {
                             write(1, FILE_NOT_FOUND_ERR, strlen(FILE_NOT_FOUND_ERR));
@@ -235,40 +241,91 @@ void serverServiceThread(Conf* conf, int conn){
 
                             while (!endofile){
 
-                                if (read(fd,caracter,1) == -1){
+                                if (read(fd,&caracter,1) == 0){
                                     endofile = 1;
                                 }
                                 if (!endofile && j<20){
-                                    if (info == NULL){
-                                        info = (char*) malloc(1);
+                                    if (lectura == NULL){
+                                        lectura = (char*) malloc(1);
                                     }else{
-                                        info = (char*) realloc(info,sizeof info + sizeof(char));
+                                        lectura = (char*) realloc(lectura,sizeof(lectura) + sizeof(char));
                                     }
-                                    info[j] = caracter;
+                                    lectura[j] = caracter;
                                     j++;
+                                    printf("Lectura : %s\n",lectura);
+                                    printf("j : %d\n",j);
 
+                                }
+                                if (j == 20){
+                                    Resposta = generaTrama(DOWNLOAD_SER_DATA,lectura);
+                                    write(conn, &Resposta.type, 1);
+                                    write(conn, Resposta.header, strlen(DOWNLOAD_SER_DATA_HEADER));
+                                    write(conn, &Resposta.length, 2);
+                                    write(conn, Resposta.data, Resposta.length);
+                                    j = 0;
+
+                                    lectura = (char*) realloc(lectura,0);
+                                    /*Resposta.header = (char*) realloc(Resposta.header,0);
+                                    Resposta.data = (char*) realloc(Resposta.data,0);
+                                    free(Resposta.header);
+                                    free(Resposta.data);*/
                                 }
 
                             }
 
-                            if (!endofile){
-                                Resposta
+                            if(lectura != NULL){
+                                Resposta = generaTrama(DOWNLOAD_SER_DATA,lectura);
+                                write(conn, &Resposta.type, 1);
+                                write(conn, Resposta.header, strlen(DOWNLOAD_SER_DATA_HEADER));
+                                write(conn, &Resposta.length, 2);
+                                printf("%s\n",Resposta.data);
+                                if(Resposta.length > 0){write(conn, Resposta.data, Resposta.length);}
+                                lectura = (char*) realloc(lectura,0);
+
+                                /*Resposta.header = (char*) realloc(Resposta.header,0);
+                                Resposta.data = (char*) realloc(Resposta.data,0);
+                                free(Resposta.header);
+                                free(Resposta.data);*/
+
                             }
+                            free(lectura);
+
+
+                            char* sum = checksum(path);
+                            printf("suuuuuuuuuum   %s\n",sum);
+                            Resposta = generaTrama(DOWNLOAD_SER_EOF,sum);
+                            printf("akiiiii\n");
+                            write(conn, &Resposta.type, 1);
+                            write(conn, Resposta.header, strlen(DOWNLOAD_SER_EOF_HEADER));
+                            write(conn, &Resposta.length, 2);
+                            write(conn, Resposta.data, Resposta.length);
+
+                            /*Resposta.header = (char*) realloc(Resposta.header,0);
+                            Resposta.data = (char*) realloc(Resposta.data,0);
+                            free(Resposta.header);
+                            free(Resposta.data);*/
+
 
                             close(fd);
                         }
 
                     }
                     else{
-                        Resposta = generaTrama(DOWNLOAD_SER_ERR,"");
+                        Resposta = generaTrama(DOWNLOAD_SER_ERR,"CHECKSUM");
                         write(conn, &Resposta.type, 1);
                         write(conn, Resposta.header, strlen(DOWNLOAD_SER_ERR_HEADER));
                         write(conn, &Resposta.length, 2);
                         write(conn, Resposta.data, Resposta.length);
+
+                        /*Resposta.header = (char*) realloc(Resposta.header,0);
+                        Resposta.data = (char*) realloc(Resposta.data,0);
+                        free(Resposta.header);
+                        free(Resposta.data);*/
                     }
 
 
                     closedir(dr);
+                    free(lectura);
 
 
                     break;
