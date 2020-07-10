@@ -7,6 +7,8 @@
 
 Trama generaTrama(int Opcio, char* data);
 
+Trama  generaTramaAudio(char*,int);
+
 Trama llegeixTrama(int);
 
 #define CON_CLI 1
@@ -22,6 +24,9 @@ Trama llegeixTrama(int);
 #define DOWNLOAD_SER_ERR 8
 #define DOWNLOAD_SER_DATA 9
 #define DOWNLOAD_SER_EOF 10
+#define EXIT_CLI 11
+#define EXIT_SER_OK 12
+#define EXIT_SER_KO 13
 
 #define CON_CLI_HEADER "[TR_NAME]"
 #define CON_SER_OK_HEADER "[CONOK]"
@@ -34,5 +39,8 @@ Trama llegeixTrama(int);
 #define DOWNLOAD_SER_ERR_HEADER "[AUDIO_KO]"
 #define DOWNLOAD_SER_DATA_HEADER "[AUDIO_RSPNS]"
 #define DOWNLOAD_SER_EOF_HEADER "[AUDIO_EOF]"
+#define EXIT_CLI_HEADER "[]"
+#define EXIT_SER_OK_HEADER "[CONOK]"
+#define EXIT_SER_KO_HEADER "[CONKO]"
 
 #endif

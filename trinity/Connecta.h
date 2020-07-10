@@ -6,7 +6,7 @@
 #include "GestorMissatge.h"
 #include "main.h"
 
-void connecta(int port, Conf* conf);
+
 
 
 

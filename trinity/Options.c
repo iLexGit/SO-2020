@@ -7,8 +7,8 @@
 
 
 
-//int whichCommand(char* comanda, Conf* conf, int* socket_client) {
-int whichCommand(char* comanda, Conf* conf, Connexio connexions [10]) {
+
+int whichCommand(char* comanda) {
     char *word = selectWord(1, comanda);
     int i =0;
     Trama Rx;
@@ -23,13 +23,13 @@ int whichCommand(char* comanda, Conf* conf, Connexio connexions [10]) {
         if (strcmp(word, "CONNECTIONS") == 0) {
             free(word);
             printf("Show connections reconegut\n");
-            scanConnections(conf->direccio, conf->port_list_inicial, conf->port_list_final, conf->port, connexions);
+            scanConnections(conf.direccio, conf.port_list_inicial, conf.port_list_final, conf.port);
             free(comanda);
             return 0;
         } else if (strcmp(word, "AUDIOS") == 0) {
             free(word);
             char* user = selectWord(3,comanda);
-            for (i=0;i<10;i++) {
+            for (i=0;i<numConnexions;i++) {
                 if (connexions[i].name != NULL) {
                     if (strcmp(connexions[i].name, user) == 0) {
                         Trama shaudios= generaTrama(SHAUDIO_CLI,"");
@@ -69,51 +69,59 @@ int whichCommand(char* comanda, Conf* conf, Connexio connexions [10]) {
             else{
                 //AQuí toca fer el connect
 
-                Trama trama = generaTrama(1, conf->name);
-
-                //if (estableixConnexio(&(*socket_client), conf->direccio, atoi(word)) < 0){
-                if (estableixConnexio(connexions, conf->direccio, atoi(word)) < 0){
-                    write(1, SOCK_ERR_SERVER, strlen(SOCK_ERR_SERVER)); return 0;
-                }else{
-
-                    //Connecta();
-
-                    /*write(*socket_client, &trama.type, 1);
-                    write(*socket_client, trama.header, strlen(trama.header));
-                    write(*socket_client, &trama.length, 2);
-                    write(*socket_client, trama.data, trama.length);*/
-
-
-
-                    write(connexions[port%10].fd, &trama.type, 1);
-                    write(connexions[port%10].fd, trama.header, strlen(trama.header));
-                    write(connexions[port%10].fd, &trama.length, 2);
-                    write(connexions[port%10].fd, trama.data, trama.length);
-
-                    trama.header = (char*) realloc(trama.header,0);
-                    trama.data = (char*) realloc(trama.data,0);
-                    free(trama.header);
-                    free(trama.data);
-
-
-
-
-
-                    //sleep(1);
-                    Rx = llegeixTrama(connexions[port%10].fd);
-
-
-                    if (!strcmp(Rx.header,CON_SER_OK_HEADER) ){
-                        connexions[port%10].name = (char*) malloc(Rx.length * sizeof(char) + 2);
-                        strcpy(connexions[port%10].name,Rx.data);
-                        connexions[port%10].port = port;
-
-                    }
-                    else{
-                        connexions[port%10].fd = 0;
-                    }
-
+                if (port == conf.port){
+                    printf("no et pots connectar a tu mateix\n");
                 }
+                else{
+                    Trama trama = generaTrama(1, conf.name);
+
+
+                    if (estableixConnexio(conf.direccio, atoi(word)) < 0){
+                        write(1, SOCK_ERR_SERVER, strlen(SOCK_ERR_SERVER)); return 0;
+                    }else{
+
+                        //Connecta();
+
+                        /*write(*socket_client, &trama.type, 1);
+                        write(*socket_client, trama.header, strlen(trama.header));
+                        write(*socket_client, &trama.length, 2);
+                        write(*socket_client, trama.data, trama.length);*/
+
+
+
+                        write(connexions[numConnexions - 1].fd, &trama.type, 1);
+                        write(connexions[numConnexions - 1].fd, trama.header, strlen(trama.header));
+                        write(connexions[numConnexions - 1].fd, &trama.length, 2);
+                        write(connexions[numConnexions - 1].fd, trama.data, trama.length);
+
+                        trama.header = (char*) realloc(trama.header,0);
+                        trama.data = (char*) realloc(trama.data,0);
+                        free(trama.header);
+                        free(trama.data);
+
+
+
+
+
+                        //sleep(1);
+                        Rx = llegeixTrama(connexions[numConnexions - 1].fd);
+
+
+                        if (!strcmp(Rx.header,CON_SER_OK_HEADER) ){
+                            connexions[numConnexions - 1].name = (char*) malloc(Rx.length * sizeof(char) + 2);
+                            strcpy(connexions[numConnexions - 1].name,Rx.data);
+                            connexions[numConnexions - 1].port = port;
+
+                        }
+                        else{
+                            connexions[numConnexions - 1].fd = 0;
+                            numConnexions--;
+                        }
+
+                    }
+                }
+
+
 
             }
             free(word);
@@ -137,12 +145,12 @@ int whichCommand(char* comanda, Conf* conf, Connexio connexions [10]) {
 
 
 
-            for (i=0;i<10;i++){
+            for (i=0;i<numConnexions;i++){
                 if (connexions[i].name != NULL){
                     if (strcmp(connexions[i].name,user)==0) {
                         printf("options.c message %s\n",message);
                         Trama say = generaTrama(SAY_CLI, message);
-                        free(message);
+
 
                         write(connexions[i].fd, &say.type, 1);
                         write(connexions[i].fd, say.header, strlen(say.header));
@@ -196,7 +204,7 @@ int whichCommand(char* comanda, Conf* conf, Connexio connexions [10]) {
         /*char* test = checksum("../Audios1/uni");*/
         if((strcmp(user, "ERROR")!=0) && (strcmp(audio, "ERROR")!=0)) {
 
-            for (i=0;i<10;i++) {
+            for (i=0;i<numConnexions;i++) {
                 if (connexions[i].name != NULL) {
                     if (strcmp(connexions[i].name, user) == 0) {
 
@@ -222,8 +230,8 @@ int whichCommand(char* comanda, Conf* conf, Connexio connexions [10]) {
                             //sprintf(path,"../Audios1/%s",audio);
                             //fd = open(path, O_WRONLY | O_CREAT);
 
-                            path = (char*) malloc(sizeof(conf->audio_folder) + sizeof(audio) + 1);
-                            sprintf(path,"%s/%s",conf->audio_folder,audio);
+                            path = (char*) malloc(sizeof(conf.audio_folder) + sizeof(audio) + 1);
+                            sprintf(path,"%s/%s",conf.audio_folder,audio);
                             printf("%s\n",path);
                             fd = open(path, O_WRONLY | O_CREAT, 0755);
 
@@ -246,7 +254,7 @@ int whichCommand(char* comanda, Conf* conf, Connexio connexions [10]) {
                                 sum = checksum(path);
 
                                 if(strcmp(sum,Fitxer.data)){
-                                    //remove(path);
+                                    remove(path);
                                     printf("esborrat\n");
                                 }
 
@@ -273,8 +281,13 @@ int whichCommand(char* comanda, Conf* conf, Connexio connexions [10]) {
             return 0;
         }
     } else if (strcmp(word, "EXIT") == 0) {
+        printf("Desconnextant...\n");
+
+
         free(word);
         free(comanda);
+
+        raise(SIGINT);
         return 1;
     }
     write(0, COMMAND_NOT_FOUND, strlen(COMMAND_NOT_FOUND));

@@ -13,11 +13,11 @@
 #include "showConnections.h"
 #include "StringProcess.h"
 
-void clientService(Conf*);
+void clientService();
 
 //int estableixConnexio(int*, char*, int);
-int estableixConnexio(Connexio*, char*, int);
+int estableixConnexio( char*, int);
 
-int weAreConnected(Connexio*, int);
+int weAreConnected(int);
 
 #endif //PRACTICA_SO_CLIENTSERVICE_H

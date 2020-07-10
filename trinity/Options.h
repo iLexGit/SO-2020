@@ -15,7 +15,9 @@
 #include "Connecta.h"
 #include "Audios.h"
 
-int whichCommand(char *, Conf*, Connexio*);
+int whichCommand(char *);
+
+
 
 
 

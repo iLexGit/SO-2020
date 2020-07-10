@@ -17,6 +17,9 @@
 #include <arpa/inet.h>
 #include <netdb.h>
 #include <pthread.h>
+#include <signal.h>
+
+typedef void (*sig_t)(int);
 
 #include "prints.h"
 

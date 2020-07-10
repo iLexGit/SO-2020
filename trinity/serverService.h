@@ -19,9 +19,9 @@ typedef struct{
     int conn;
 }serverThreadData;
 
-int serverService(Conf*);
+int serverService();
 
-void* serverServiceThread_aux(void*);
+void* serverServiceThread_aux();
 
-void serverServiceThread(Conf*, int);
+void serverServiceThread(int);
 #endif //PRACTICA_SO_SERVERSERVICE_H

@@ -19,7 +19,7 @@ int checkDomain(char* domain, struct in_addr* address){
 
 
 
-void scanConnections (char* domain, int start , int end, int self,Connexio connexions[10]){
+void scanConnections (char* domain, int start , int end, int self){
     //printf("Procedim a escanejar adreça %s tot els ports del rang %d => %d\n", domain, start, end);
     //char* puertos[2];
     int pfd[2];
@@ -49,7 +49,7 @@ void scanConnections (char* domain, int start , int end, int self,Connexio conne
             
             printf("soc el fill i acabo de enxier\n");
             dup2 (pfd[1],1);
-            
+            //printf("soc el fill i acabo de enxier\n");
             execl("./show_connections.sh","",portInicial,portFinal,NULL);
             //free(atoi_start); free(atoi_end);
             //write(1,"soc el fill i ara moriré\n",strlen("soc el fill i ara moriré\n"));
@@ -87,11 +87,15 @@ void scanConnections (char* domain, int start , int end, int self,Connexio conne
                 int x = atoi(ports[k]);
                 if (x != self){
                     write(1,ports[k],sizeof(ports[k]));
-                    if (connexions[x%10].name != NULL){
-                        printf("entrem?\t%s\n",connexions[x%10].name);
-                        write(1,"\t",1);
-                        write(1,connexions[x%10].name,strlen(connexions[x%10].name));
+                    for(j = 0; j< numConnexions; j++){
+
+                        if (connexions[j].port == x){
+                            //printf("entrem?\t%s\n",connexions[j]->name);
+                            write(1,"\t",1);
+                            write(1,connexions[j].name,strlen(connexions[j].name));
+                        }
                     }
+
                     write(1,"\n",1);
 
                 }

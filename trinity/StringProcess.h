@@ -17,10 +17,9 @@ int readTextInput(char*, char*);
 
 char* readUntil(int, char);
 
-int readConfigurationFile(char* , Conf*);
+int readConfigurationFile(char*);
 
 char* selectWord(int, char*);
 
-int SizeWord(int n, char* texto);
 
 #endif //PRACTICA_SO_STRINGPROCESS_H

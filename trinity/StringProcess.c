@@ -47,7 +47,7 @@ char* readUntil(int fd, char end) {
     return string;
 }
 
-int readConfigurationFile(char * path, Conf* conf){
+int readConfigurationFile(char * path){
 
     int fd = open(path, O_RDONLY);
 
@@ -59,22 +59,22 @@ int readConfigurationFile(char * path, Conf* conf){
 
     char* aux;
 
-    conf->name = readUntil(fd, '\n');
-    conf->audio_folder = readUntil(fd, '\n');
-    conf->IPaddress = readUntil(fd, '\n');
+    conf.name = readUntil(fd, '\n');
+    conf.audio_folder = readUntil(fd, '\n');
+    conf.IPaddress = readUntil(fd, '\n');
 
     aux = readUntil(fd, '\n');
-    conf->port = atoi(aux);
+    conf.port = atoi(aux);
     free(aux);
 
-    conf->direccio = readUntil(fd, '\n');
+    conf.direccio = readUntil(fd, '\n');
 
     aux = readUntil(fd, '\n');
-    conf->port_list_inicial = atoi(aux);
+    conf.port_list_inicial = atoi(aux);
     free(aux);
 
     aux = readUntil(fd, '\n');
-    conf->port_list_final = atoi(aux);
+    conf.port_list_final = atoi(aux);
     free(aux);
 
     close(fd);
@@ -100,7 +100,7 @@ char* selectWord(int n, char* texto){
             word = (char*)realloc(word,sizeof(char) * (posicio + 2));
             posicio++;
             lletra++;
-            printf("word %s\n",word);
+
         }
 
 
@@ -115,40 +115,6 @@ char* selectWord(int n, char* texto){
         //printf("No existeix la paraula en la posició %d\n", n);
         return "ERROR\0";
     }
-    printf("word final %s\n",word);
+
     return word;
-}
-
-int SizeWord(int n, char* texto){
-
-    int i = 0;
-    int lletra= 0;
-    int posicio;
-    char* word;
-
-    while (i < n){
-        word = (char*)malloc(sizeof(char));
-        posicio = 0;
-        while((texto[lletra] != ' ') && (texto[lletra] != '\0')){
-            word[posicio] = texto[lletra];
-            word = (char*)realloc(word,sizeof(char) * (posicio + 2));
-            posicio++;
-            lletra++;
-            //printf("word %s\n",word);
-        }
-
-
-        word[posicio] = '\0';
-        i++;
-        lletra++;
-
-        if(i<n){word = (char*)realloc(word,0);free(word);}
-        if(texto[lletra-1] == '\0'){break;}
-    }
-    if(i<n){
-        //printf("No existeix la paraula en la posició %d\n", n);
-        return "ERROR\0";
-    }
-    //printf("word final %s\n",word);
-    return strlen(word);
 }
