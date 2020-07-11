@@ -5,8 +5,8 @@
 #include <dirent.h>
 #include "serverService.h"
 
-void* serverServiceThread_aux(){
-    serverServiceThread(srvconnfds[srv_numConnexions]);
+void* serverServiceThread_aux(void* args){
+    serverServiceThread((int)args);
    // int conn = srvconnfds[srv_numConnexions];
     /*printf("numcon es %d\n",srv_numConnexions);
     printf("serversevice aux i conn = %d\n",srvconnfds[srv_numConnexions]);
@@ -20,7 +20,7 @@ void* serverServiceThread_aux(){
 int serverService(){
     //Creem el socket
 
-    int sockfd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+    sockfd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
     if(sockfd < 0){write(1, SOCK_ERR_SERVER, strlen(SOCK_ERR_SERVER)); return -1;}
 
     //Struct pel socket
@@ -41,7 +41,8 @@ int serverService(){
     listen (sockfd, BACKLOG);
     printf("[SERVER] esperant connexió\n");
 
-    pthread_t* clients = (pthread_t*)malloc(sizeof(pthread_t));
+    //pthread_t* clients = (pthread_t*)malloc(sizeof(pthread_t));
+    pthread_t clients;
     srvconnfds = (int*) malloc(sizeof(int));
 
 
@@ -65,8 +66,9 @@ int serverService(){
         }else{
             //crear thread
             //connectaServer(1, conf)
-            clients = (pthread_t*)realloc(clients, sizeof(clients)+sizeof(pthread_t));
-            int client = pthread_create(&clients[srv_numConnexions],NULL, serverServiceThread_aux, NULL);
+            //clients = (pthread_t*)realloc(clients, sizeof(clients)+sizeof(pthread_t));
+            //int client = pthread_create(&clients[srv_numConnexions],NULL, serverServiceThread_aux, srvconnfds[srv_numConnexions]);
+            int client = pthread_create(&clients,NULL, serverServiceThread_aux, srv_numConnexions);
             printf("el fd val %d\n",srvconnfds[numConnexions]);
             if(client != 0){write(1, CONN_THREAD_ERR, strlen(CONN_THREAD_ERR));}
             else{
@@ -82,7 +84,7 @@ int serverService(){
 
 void serverServiceThread(int conn){
     printf("abans llegeix trama i conn = %d\n",conn);
-    Trama Rx = llegeixTrama(conn);
+    Trama Rx = llegeixTrama(srvconnfds[conn]);
     Trama recepcio;
     char *String;
     printf("buenosdias\n");
@@ -99,10 +101,10 @@ void serverServiceThread(int conn){
     printf("eyaaaaaaaa\n");
 
     Trama tx = generaTrama(CON_SER_OK, conf.name);
-    write(conn, &tx.type, 1);
-    write(conn, tx.header, strlen(CON_SER_OK_HEADER));
-    write(conn, &tx.length, 2);
-    write(conn, tx.data, tx.length);
+    write(srvconnfds[conn], &tx.type, 1);
+    write(srvconnfds[conn], tx.header, strlen(CON_SER_OK_HEADER));
+    write(srvconnfds[conn], &tx.length, 2);
+    write(srvconnfds[conn], tx.data, tx.length);
 
     printf("%c\n%s\n%d\n%s\n", tx.type, tx.header, tx.length, tx.data);
 
@@ -116,13 +118,13 @@ void serverServiceThread(int conn){
     while(1){
         printf("abans llegeixtrama\n");
 
-        recepcio.header = (char*) realloc(recepcio.header,0);
+        /*recepcio.header = (char*) realloc(recepcio.header,0);
         recepcio.data = (char*) realloc(recepcio.data,0);
         free(recepcio.header);
-        free(recepcio.data);
+        free(recepcio.data);*/
 
-        recepcio = llegeixTrama(conn);
-        printf("despres llegeixtrama\n");
+        recepcio = llegeixTrama(srvconnfds[conn]);
+        printf("despres llegeixtrama type es %\n",recepcio.type);
         //printf("%c\n%s\n%d\n%s\n", recepcio.type, recepcio.header, recepcio.length, recepcio.data);
         switch(recepcio.type - '0'){
             case 1:
@@ -136,9 +138,9 @@ void serverServiceThread(int conn){
                 write(1,String,strlen(String));
                 Trama Tx = generaTrama(SAY_SER,"");
                 //printf("%c\n%s\n%d\n%s\n", Tx.type, Tx.header, Tx.length, Tx.data);
-                write(conn, &Tx.type, 1);
-                write(conn, Tx.header, strlen(CON_SER_SAY_HEADER));
-                write(conn, &Tx.length, 2);
+                write(srvconnfds[conn], &Tx.type, 1);
+                write(srvconnfds[conn], Tx.header, strlen(CON_SER_SAY_HEADER));
+                write(srvconnfds[conn], &Tx.length, 2);
                 //write(conn, Tx.data, tx.length);
 
                 break;
@@ -182,10 +184,10 @@ void serverServiceThread(int conn){
                     }
                     printf("%s\n",List);
                     AudioList = generaTrama(SHAUDIO_SER,List);
-                    write(conn, &AudioList.type, 1);
-                    write(conn, AudioList.header, strlen(SHAUDIO_SER_HEADER));
-                    write(conn, &AudioList.length, 2);
-                    write(conn, AudioList.data, AudioList.length);
+                    write(srvconnfds[conn], &AudioList.type, 1);
+                    write(srvconnfds[conn], AudioList.header, strlen(SHAUDIO_SER_HEADER));
+                    write(srvconnfds[conn], &AudioList.length, 2);
+                    write(srvconnfds[conn], AudioList.data, AudioList.length);
                     printf("trama show audios enviada\n");
                 }
 
@@ -265,10 +267,10 @@ void serverServiceThread(int conn){
                                 }
                                 if (j == 20){
                                     Resposta = generaTramaAudio(lectura,j);
-                                    write(conn, &Resposta.type, 1);
-                                    write(conn, Resposta.header, strlen(DOWNLOAD_SER_DATA_HEADER));
-                                    write(conn, &Resposta.length, 2);
-                                    write(conn, Resposta.data, Resposta.length);
+                                    write(srvconnfds[conn], &Resposta.type, 1);
+                                    write(srvconnfds[conn], Resposta.header, strlen(DOWNLOAD_SER_DATA_HEADER));
+                                    write(srvconnfds[conn], &Resposta.length, 2);
+                                    write(srvconnfds[conn], Resposta.data, Resposta.length);
                                     j = 0;
 
                                     lectura = (char*) realloc(lectura,0);
@@ -283,9 +285,9 @@ void serverServiceThread(int conn){
                             if(lectura != NULL){
                                 //Resposta = generaTrama(DOWNLOAD_SER_DATA,lectura);
                                 Resposta = generaTramaAudio(lectura,j);
-                                write(conn, &Resposta.type, 1);
-                                write(conn, Resposta.header, strlen(DOWNLOAD_SER_DATA_HEADER));
-                                write(conn, &Resposta.length, 2);
+                                write(srvconnfds[conn], &Resposta.type, 1);
+                                write(srvconnfds[conn], Resposta.header, strlen(DOWNLOAD_SER_DATA_HEADER));
+                                write(srvconnfds[conn], &Resposta.length, 2);
                                 printf("%s\n",Resposta.data);
                                 if(Resposta.length > 0){write(conn, Resposta.data, Resposta.length);}
                                 lectura = (char*) realloc(lectura,0);
@@ -303,10 +305,10 @@ void serverServiceThread(int conn){
                             printf("suuuuuuuuuum   %s\n",sum);
                             Resposta = generaTrama(DOWNLOAD_SER_EOF,sum);
                             printf("akiiiii\n");
-                            write(conn, &Resposta.type, 1);
-                            write(conn, Resposta.header, strlen(DOWNLOAD_SER_EOF_HEADER));
-                            write(conn, &Resposta.length, 2);
-                            write(conn, Resposta.data, Resposta.length);
+                            write(srvconnfds[conn], &Resposta.type, 1);
+                            write(srvconnfds[conn], Resposta.header, strlen(DOWNLOAD_SER_EOF_HEADER));
+                            write(srvconnfds[conn], &Resposta.length, 2);
+                            write(srvconnfds[conn], Resposta.data, Resposta.length);
 
                             /*Resposta.header = (char*) realloc(Resposta.header,0);
                             Resposta.data = (char*) realloc(Resposta.data,0);
@@ -319,11 +321,11 @@ void serverServiceThread(int conn){
 
                     }
                     else{
-                        Resposta = generaTrama(DOWNLOAD_SER_ERR,"CHECKSUM");
-                        write(conn, &Resposta.type, 1);
-                        write(conn, Resposta.header, strlen(DOWNLOAD_SER_ERR_HEADER));
-                        write(conn, &Resposta.length, 2);
-                        write(conn, Resposta.data, Resposta.length);
+                        Resposta = generaTrama(DOWNLOAD_SER_ERR,"");
+                        write(srvconnfds[conn], &Resposta.type, 1);
+                        write(srvconnfds[conn], Resposta.header, strlen(DOWNLOAD_SER_ERR_HEADER));
+                        write(srvconnfds[conn], &Resposta.length, 2);
+                        write(srvconnfds[conn], Resposta.data, Resposta.length);
 
                         /*Resposta.header = (char*) realloc(Resposta.header,0);
                         Resposta.data = (char*) realloc(Resposta.data,0);
@@ -339,6 +341,19 @@ void serverServiceThread(int conn){
                     break;
                 }
 
+            }
+
+            case 6: {
+                Trama Resposta = generaTrama(EXIT_SER_OK, "");
+                write(srvconnfds[conn], &Resposta.type, 1);
+                write(srvconnfds[conn], Resposta.header, strlen(DOWNLOAD_SER_ERR_HEADER));
+                write(srvconnfds[conn], &Resposta.length, 2);
+                write(srvconnfds[conn], Resposta.data, Resposta.length);
+
+                close(srvconnfds[conn]);
+                return;
+
+                break;
             }
         }
     }

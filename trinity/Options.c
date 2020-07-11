@@ -33,24 +33,37 @@ int whichCommand(char* comanda) {
                 if (connexions[i].name != NULL) {
                     if (strcmp(connexions[i].name, user) == 0) {
                         Trama shaudios= generaTrama(SHAUDIO_CLI,"");
-                        write(connexions[i].fd, &shaudios.type, 1);
-                        write(connexions[i].fd, shaudios.header, strlen(shaudios.header));
-                        write(connexions[i].fd, &shaudios.length, 2);
+                        if(write(connexions[i].fd, &shaudios.type, 1)) {
 
-                        /*shaudios.header = (char*) realloc(shaudios.header,0);
-                        shaudios.data = (char*) realloc(shaudios.data,0);
-                        free(shaudios.header);
-                        free(shaudios.data);*/
+                            write(connexions[i].fd, shaudios.header, strlen(shaudios.header));
+                            write(connexions[i].fd, &shaudios.length, 2);
+
+                            /*shaudios.header = (char*) realloc(shaudios.header,0);
+                            shaudios.data = (char*) realloc(shaudios.data,0);
+                            free(shaudios.header);
+                            free(shaudios.data);*/
 
 
-                        Trama Rx = llegeixTrama(connexions[i].fd);
-                        printf("trama sh audios rebuda\n");
-                        printf("header %s  data %s\n",Rx.header,Rx.data);
-                        write(1,Rx.data,Rx.length);
-                        write(1,"\n",1);
+                            Trama Rx = llegeixTrama(connexions[i].fd);
+                            printf("trama sh audios rebuda\n");
+                            printf("header %s  data %s\n", Rx.header, Rx.data);
+                            write(1, Rx.data, Rx.length);
+                            write(1, "\n", 1);
+                        }
+                        else{
+                            char* text = (char*)malloc((strlen(connexions[i].name) + strlen("l'usuari  ja no està connectat\n")) * sizeof(char) + 1);
+
+                            sprintf(text,"l'usuari %s ja no està connectat\n",connexions[i].name);
+                            write(1,text,strlen(text));
+                            free(connexions[i].name);
+                            connexions[i].fd = 0;
+                            connexions[i].port = 0;
+                            free(text);
+                        }
                     }
                 }
             }
+
             //printf("Show audios reconegut\n");
             free(comanda);
             return 0;
@@ -149,20 +162,36 @@ int whichCommand(char* comanda) {
                 if (connexions[i].name != NULL){
                     if (strcmp(connexions[i].name,user)==0) {
                         printf("options.c message %s\n",message);
+                        printf("el file descriptor es %d\n",connexions[i].fd);
                         Trama say = generaTrama(SAY_CLI, message);
 
+int n = write(connexions[i].fd, &say.type, 1);
+printf("\n\nla ene es %d\n\n",n);
+                        if ( n!=0){
 
-                        write(connexions[i].fd, &say.type, 1);
-                        write(connexions[i].fd, say.header, strlen(say.header));
-                        write(connexions[i].fd, &say.length, 2);
-                        write(connexions[i].fd, say.data, say.length);
+                                write(connexions[i].fd, say.header, strlen(say.header));
+                                write(connexions[i].fd, &say.length, 2);
+                                write(connexions[i].fd, say.data, say.length);
 
-                        say.header = (char*) realloc(say.header,0);
-                        say.data = (char*) realloc(say.data,0);
-                        free(say.header);
-                        free(say.data);
+                                say.header = (char*) realloc(say.header,0);
+                                say.data = (char*) realloc(say.data,0);
+                                free(say.header);
+                                free(say.data);
 
-                        Trama MSGOK = llegeixTrama(connexions[i].fd);
+                                Trama MSGOK = llegeixTrama(connexions[i].fd);
+                        }
+                        else{
+                            /*char* text;// = (char*)malloc((strlen(connexions[i].name) + strlen("l'usuari  ja no està connectat\n")) * sizeof(char) + 1);
+
+                            sprintf(text,"l'usuari %s ja no està connectat\n",connexions[i].name);
+                            write(1,text,strlen(text));*/
+                            printf("l'usuari %s ja no està connectat\n",connexions[i].name);
+                            free(connexions[i].name);
+                            connexions[i].fd = 0;
+                            connexions[i].port = 0;
+                            //free(text);
+                        }
+
 
 
                         break;
@@ -209,61 +238,71 @@ int whichCommand(char* comanda) {
                     if (strcmp(connexions[i].name, user) == 0) {
 
                         Trama Download = generaTrama(DOWNLOAD_CLI, audio);
-                        write(connexions[i].fd, &Download.type, 1);
-                        write(connexions[i].fd, Download.header, strlen(Download.header));
-                        write(connexions[i].fd, &Download.length, 2);
-                        write(connexions[i].fd, Download.data, Download.length);
+                        if(write(connexions[i].fd, &Download.type, 1) != 0){
+                            write(connexions[i].fd, Download.header, strlen(Download.header));
+                            write(connexions[i].fd, &Download.length, 2);
+                            write(connexions[i].fd, Download.data, Download.length);
 
-                        Download.header = (char*) realloc(Download.header,0);
-                        Download.data = (char*) realloc(Download.data,0);
-                        free(Download.header);
-                        free(Download.data);
+                            Download.header = (char*) realloc(Download.header,0);
+                            Download.data = (char*) realloc(Download.data,0);
+                            free(Download.header);
+                            free(Download.data);
 
-                        Trama Fitxer = llegeixTrama(connexions[i].fd);
-                        if (!strcmp(Fitxer.header,DOWNLOAD_SER_ERR_HEADER)){
-                            printf("el fitxer no existeix\n");
-                        }
-                        else{
-                            //printf("el fitxer si existeix\n");
-
-                            //path = (char*) malloc(sizeof("../Audios2") + sizeof(audio) + 1);
-                            //sprintf(path,"../Audios1/%s",audio);
-                            //fd = open(path, O_WRONLY | O_CREAT);
-
-                            path = (char*) malloc(sizeof(conf.audio_folder) + sizeof(audio) + 1);
-                            sprintf(path,"%s/%s",conf.audio_folder,audio);
-                            printf("%s\n",path);
-                            fd = open(path, O_WRONLY | O_CREAT, 0755);
-
-                            if (fd < 0) {
-                                write(1, FILE_NOT_FOUND_ERR, strlen(FILE_NOT_FOUND_ERR));
+                            Trama Fitxer = llegeixTrama(connexions[i].fd);
+                            if (!strcmp(Fitxer.header,DOWNLOAD_SER_ERR_HEADER)){
+                                printf("el fitxer no existeix\n");
                             }
                             else{
-                                while(strcmp(Fitxer.header,DOWNLOAD_SER_EOF_HEADER)){
-                                    printf("header %s data %s\n",Fitxer.header,Fitxer.data);
-                                    write(fd,Fitxer.data,Fitxer.length);
-                                    Fitxer = llegeixTrama(connexions[i].fd);
+                                //printf("el fitxer si existeix\n");
 
+                                //path = (char*) malloc(sizeof("../Audios2") + sizeof(audio) + 1);
+                                //sprintf(path,"../Audios1/%s",audio);
+                                //fd = open(path, O_WRONLY | O_CREAT);
+
+                                path = (char*) malloc(sizeof(conf.audio_folder) + sizeof(audio) + 1);
+                                sprintf(path,"%s/%s",conf.audio_folder,audio);
+                                printf("%s\n",path);
+                                fd = open(path, O_WRONLY | O_CREAT, 0755);
+
+                                if (fd < 0) {
+                                    write(1, FILE_NOT_FOUND_ERR, strlen(FILE_NOT_FOUND_ERR));
                                 }
-                                printf("EOF---> %s\n",Fitxer.data);
+                                else{
+                                    while(strcmp(Fitxer.header,DOWNLOAD_SER_EOF_HEADER)){
+                                        printf("header %s data %s\n",Fitxer.header,Fitxer.data);
+                                        write(fd,Fitxer.data,Fitxer.length);
+                                        Fitxer = llegeixTrama(connexions[i].fd);
+
+                                    }
+                                    printf("EOF---> %s\n",Fitxer.data);
 
 
 
-                                close(fd);
+                                    close(fd);
 
-                                sum = checksum(path);
+                                    sum = checksum(path);
 
-                                if(strcmp(sum,Fitxer.data)){
-                                    remove(path);
-                                    printf("esborrat\n");
+                                    if(strcmp(sum,Fitxer.data)){
+                                        remove(path);
+                                        printf("esborrat\n");
+                                    }
+
+
+
                                 }
 
 
 
                             }
+                        } else{
+                            char* text = (char*)malloc((strlen(connexions[i].name) + strlen("l'usuari  ja no està connectat\n")) * sizeof(char) + 1);
 
-
-
+                            sprintf(text,"l'usuari %s ja no està connectat\n",connexions[i].name);
+                            write(1,text,strlen(text));
+                            free(connexions[i].name);
+                            connexions[i].fd = 0;
+                            connexions[i].port = 0;
+                            free(text);
                         }
 
                     }

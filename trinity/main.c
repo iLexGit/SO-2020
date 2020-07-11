@@ -6,6 +6,9 @@ int numConnexions = 0;
 Conf conf;
 int* srvconnfds;
 int srv_numConnexions = 0;
+int sockfd = 0;
+int server = 0;
+int client=0;
 
 
 
@@ -52,13 +55,17 @@ static void closeProgram(int signal){
             }
 
             for (int j = 0; j < srv_numConnexions; ++j) {
-                close(srvconnfds[j]);
-
+                if (srvconnfds[j] != 0){
+                    printf("\n1tancat\n");
+                    close(srvconnfds[j]);
+                }
             }
+            close (sockfd);
 
             free(srvconnfds);
             free(connexions);
             exit(1);
+
             break;
         default:
             break;
@@ -91,12 +98,12 @@ int main(int argc, char *argv[])
 
     pthread_t t_server, t_client;
 
-	int server = pthread_create(&t_server, NULL, startServer,NULL);
+	server = pthread_create(&t_server, NULL, startServer,NULL);
 	if(server != 0){
 	    write(1, SERVER_THREAD_ERR, strlen(SERVER_THREAD_ERR));
 	    return -1;
 	}
-	int client = pthread_create(&t_client, NULL, startClient, NULL);
+	client = pthread_create(&t_client, NULL, startClient, NULL);
     if(client != 0){
         write(1, CLIENT_THREAD_ERR, strlen(CLIENT_THREAD_ERR));
         return -1;

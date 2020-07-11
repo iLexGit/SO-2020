@@ -22,4 +22,5 @@ extern int numConnexions;
 extern Conf conf;
 extern int* srvconnfds;
 extern int srv_numConnexions;
+extern int sockfd;
 #endif //PRACTICA_SO_MAIN_H
