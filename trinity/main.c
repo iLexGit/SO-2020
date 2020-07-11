@@ -1,5 +1,6 @@
 
 #include "main.h"
+#include <pthread.h>
 
 Connexio * connexions;
 int numConnexions = 0;
@@ -14,16 +15,13 @@ int client=0;
 
 
 void* startClient(void* arg){
-    //printf("THREAD PER GENERAL EL PROCÉS DE CLIENT\n");
-
+    printf("start client\n");
     clientService();
-    //FREE's
     return (void*)1;
 }
 
 void* startServer(void* arg){
-    //printf("THREAD PER A GENERAR EL PROCÉS DE SERVIDOR\n");
-
+    printf("start server\n");
     serverService();
     return (void*) 1;
 }
@@ -87,15 +85,6 @@ int main(int argc, char *argv[])
 	if (x == -1){
 		return 0;
 	}
-
-    //printf("%s\n",conf.name );
-    //printf("%s\n",conf.audio_folder);
-    //printf("%s\n",conf.IPaddress );
-    //printf("%d\n",conf.port );
-    //printf("%s\n",conf.direccio );
-    //printf("%d\n",conf.port_list_inicial);
-    //printf("%d\n",conf.port_list_final);*/
-
     pthread_t t_server, t_client;
 
 	server = pthread_create(&t_server, NULL, startServer,NULL);
@@ -118,7 +107,5 @@ int main(int argc, char *argv[])
 
     printf("Exiting main...\n");
 
-    //FREE de conf!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    //free(&conf);
 	return 0;
 }

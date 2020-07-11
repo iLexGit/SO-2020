@@ -5,98 +5,18 @@
 #include <dirent.h>
 #include "serverService.h"
 
-void* serverServiceThread_aux(void* args){
-    serverServiceThread((int)args);
-   // int conn = srvconnfds[srv_numConnexions];
-    /*printf("numcon es %d\n",srv_numConnexions);
-    printf("serversevice aux i conn = %d\n",srvconnfds[srv_numConnexions]);
-    printf("serversevice aux i conn = %d\n",conn);*/
 
-    //serverServiceThread(srvconnfds[srv_numConnexions]);
-    //printf("serversevice aux2 i conn = %d\n",conn);
-    return (void*)1;
-}
+void* serverServiceThread(void* arg){
+    serverThreadData* data = (serverThreadData*)arg;
 
-int serverService(){
-    //Creem el socket
+    char* Rx_data = data->rx_data;
+    int conn = data->conn;
 
-    sockfd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-    if(sockfd < 0){write(1, SOCK_ERR_SERVER, strlen(SOCK_ERR_SERVER)); return -1;}
-
-    //Struct pel socket
-    struct sockaddr_in s_addr;
-    memset (&s_addr, 0, sizeof(s_addr));
-    s_addr.sin_family = AF_INET;
-    s_addr.sin_port = htons(conf.port);
-    inet_aton(conf.IPaddress, &s_addr.sin_addr);
-
-    printf("%s\n", conf.IPaddress);
-    //Fem el bind
-    if (bind(sockfd, (void*)&s_addr, sizeof(s_addr)) < 0){
-        write(1, BIND_ERR, strlen(BIND_ERR));
-        return -1;
-    }
-
-    //Convertim el socket en passiu
-    listen (sockfd, BACKLOG);
-    printf("[SERVER] esperant connexió\n");
-
-    //pthread_t* clients = (pthread_t*)malloc(sizeof(pthread_t));
-    pthread_t clients;
-    srvconnfds = (int*) malloc(sizeof(int));
-
-
-    serverThreadData data;
-    //Fem el accept
-    while(1){
-
-        srvconnfds[srv_numConnexions] = accept (sockfd, NULL, NULL);
-        printf("el fd val %d\n",srvconnfds[numConnexions]);
-
-
-        if (srvconnfds[srv_numConnexions]<0){
-            //Trama Error = generaTrama(CON_SER_KO, "");
-            //write(sockfd, &Error.type, 1);
-            //write(sockfd, Error.header, strlen(CON_SER_KO_HEADER));
-            //write(sockfd, &Error.length, 2);
-            //write(sockfd, Error.data, Error.length);
-            write(1, CONN_ERR_SERVER, strlen(CONN_ERR_SERVER));
-            //return -1;
-
-        }else{
-            //crear thread
-            //connectaServer(1, conf)
-            //clients = (pthread_t*)realloc(clients, sizeof(clients)+sizeof(pthread_t));
-            //int client = pthread_create(&clients[srv_numConnexions],NULL, serverServiceThread_aux, srvconnfds[srv_numConnexions]);
-            int client = pthread_create(&clients,NULL, serverServiceThread_aux, srv_numConnexions);
-            printf("el fd val %d\n",srvconnfds[numConnexions]);
-            if(client != 0){write(1, CONN_THREAD_ERR, strlen(CONN_THREAD_ERR));}
-            else{
-                srvconnfds = (int*) realloc(srvconnfds,sizeof(int) + sizeof(srvconnfds));
-                srv_numConnexions++;
-                printf("else d crear thread\n");
-            }
-        }
-    }
-
-    return 0;
-}
-
-void serverServiceThread(int conn){
-    printf("abans llegeix trama i conn = %d\n",conn);
-    Trama Rx = llegeixTrama(srvconnfds[conn]);
-    Trama recepcio;
     char *String;
+    Trama recepcio;
     printf("buenosdias\n");
 
-    if (Rx.type < '0' || Rx.type > '6'){
-        printf("hem descartat\n");
-        return;
-    }
     printf("no hem descartat\n");
-
-    printf("%c\n%s\n%d\n%s\n", Rx.type, Rx.header, Rx.length, Rx.data);
-
 
     printf("eyaaaaaaaa\n");
 
@@ -126,17 +46,17 @@ void serverServiceThread(int conn){
         recepcio = llegeixTrama(srvconnfds[conn]);
         printf("despres llegeixtrama type es %\n",recepcio.type);
         //printf("%c\n%s\n%d\n%s\n", recepcio.type, recepcio.header, recepcio.length, recepcio.data);
-        switch(recepcio.type - '0'){
+        switch(recepcio.type - '0') {
             case 1:
 
                 break;
 
             case 2:
                 //printf("%s     %s-\n",Rx.data,recepcio.data);
-                String = (char *) malloc(sizeof(char) * (5 + strlen(Rx.data) + strlen(recepcio.data)));
-                sprintf(String,"[%s]:\t%s\n",Rx.data,recepcio.data);
-                write(1,String,strlen(String));
-                Trama Tx = generaTrama(SAY_SER,"");
+                String = (char *) malloc(sizeof(char) * (5 + strlen(Rx_data) + strlen(recepcio.data)));
+                sprintf(String, "[%s]:\t%s\n", Rx_data, recepcio.data);
+                write(1, String, strlen(String));
+                Trama Tx = generaTrama(SAY_SER, "");
                 //printf("%c\n%s\n%d\n%s\n", Tx.type, Tx.header, Tx.length, Tx.data);
                 write(srvconnfds[conn], &Tx.type, 1);
                 write(srvconnfds[conn], Tx.header, strlen(CON_SER_SAY_HEADER));
@@ -146,8 +66,18 @@ void serverServiceThread(int conn){
                 break;
 
 
-            case 3:
+            case 3: {
+                String = (char *) malloc(sizeof(char) * (5 + strlen(Rx_data) + strlen(recepcio.data)));
+                sprintf(String, "[%s]:\t%s\n", Rx_data, recepcio.data);
+                write(1, String, strlen(String));
+
+                Trama Cool = generaTrama(BROAD_SER, "");
+
+                write(srvconnfds[conn], &Cool.type, 1);
+                write(srvconnfds[conn], Cool.header, strlen(BROAD_SER_HEADER));
+                write(srvconnfds[conn], &Cool.length, 2);
                 break;
+            }
 
             case 4: {
                 Trama AudioList;
@@ -351,10 +281,86 @@ void serverServiceThread(int conn){
                 write(srvconnfds[conn], Resposta.data, Resposta.length);
 
                 close(srvconnfds[conn]);
-                return;
+                return (void*)1;
 
                 break;
             }
         }
     }
 }
+
+
+
+int serverService(){
+    //Creem el socket
+
+    printf("Creant thread servidor MASTER\n");
+    sockfd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+    if(sockfd < 0){write(1, SOCK_ERR_SERVER, strlen(SOCK_ERR_SERVER)); return -1;}
+
+    //Struct pel socket
+    struct sockaddr_in s_addr;
+    memset (&s_addr, 0, sizeof(s_addr));
+    s_addr.sin_family = AF_INET;
+    s_addr.sin_port = htons(conf.port);
+    inet_aton(conf.IPaddress, &s_addr.sin_addr);
+
+    printf("%s\n", conf.IPaddress);
+    //Fem el bind
+    if (bind(sockfd, (void*)&s_addr, sizeof(s_addr)) < 0){
+        write(1, BIND_ERR, strlen(BIND_ERR));
+        return -1;
+    }
+
+    //Convertim el socket en passiu
+    listen (sockfd, BACKLOG);
+    printf("[SERVER] esperant connexió\n");
+
+    //pthread_t* clients = (pthread_t*)malloc(sizeof(pthread_t));
+    pthread_t clients;
+    srvconnfds = (int*) malloc(sizeof(int));
+
+
+    serverThreadData data;
+    //Fem el accept
+    while(1){
+
+        srvconnfds[srv_numConnexions] = accept (sockfd, NULL, NULL);
+        printf("el fd val %d\n",srvconnfds[numConnexions]);
+
+
+        if (srvconnfds[srv_numConnexions]<0){
+            //Trama Error = generaTrama(CON_SER_KO, "");
+            //write(sockfd, &Error.type, 1);
+            //write(sockfd, Error.header, strlen(CON_SER_KO_HEADER));
+            //write(sockfd, &Error.length, 2);
+            //write(sockfd, Error.data, Error.length);
+            write(1, CONN_ERR_SERVER, strlen(CONN_ERR_SERVER));
+            //return -1;
+
+        }else{
+            serverThreadData data;
+            printf("abans llegeix trama i conn = %d\n",srvconnfds[srv_numConnexions]);
+            Trama Rx = llegeixTrama(srvconnfds[srv_numConnexions]);
+            printf("comprovacio si es connect del show connections\n");
+            //printf("%c\n%s\n%d\n%s\n", Rx.type, Rx.header, Rx.length, Rx.data);
+            if (Rx.type < '0' || Rx.type > '6'){
+                printf("hem descartat\n");
+            } else {
+                //crear thread
+                data.conn = srv_numConnexions;
+                data.rx_data = Rx.data;
+                int client = pthread_create(&clients, NULL, serverServiceThread, (void*)&data);
+                if (client != 0) { write(1, CONN_THREAD_ERR, strlen(CONN_THREAD_ERR)); }
+                else {
+                    srvconnfds = (int *) realloc(srvconnfds, sizeof(int) * (srv_numConnexions + 1));
+                    srv_numConnexions++;
+                    printf("else d crear thread\n");
+                }
+            }
+        }
+    }
+
+    return 0;
+}
+

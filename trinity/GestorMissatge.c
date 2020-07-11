@@ -176,13 +176,23 @@ Trama generaTrama(int Opcio, char* data){
 
             break;
 
+        case BROAD_CLI:
+            trama.header = (char*)malloc(strlen(BROAD_CLI_HEADER)*sizeof(char)+1);
+            strcpy(trama.header, BROAD_CLI_HEADER);
 
+            trama.type = '3';
+            trama.length = strlen(data);
+            trama.data = (char*) malloc(trama.length * sizeof(char) + 1);
+            strcpy(trama.data, data);
+            break;
 
+        case BROAD_SER:
+            trama.header = (char*)malloc(strlen(BROAD_SER_HEADER)*sizeof(char)+1);
+            strcpy(trama.header, BROAD_SER_HEADER);
 
-
-
-
-
+            trama.type = '3';
+            trama.length = 0;
+            break;
     }
     printf("estás en generatrama\n");
     //printf("%s\n",trama.data);

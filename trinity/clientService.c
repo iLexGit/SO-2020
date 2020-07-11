@@ -8,6 +8,7 @@ void clientService(){
     //int socket_client = -1;
     //Connexio* connexions;
     //int numConnexions = 0;
+    printf("Creant thread Client MASTER \n");
     char* comanda;
     char prompt[strlen(conf.name +3)];
     sprintf(prompt, "$%s: ", conf.name);
@@ -91,8 +92,7 @@ int estableixConnexio( char* dir, int port) {
 
 void* serverServiceThread(void* arg){
     Connexio connexio = (Connexio*) arg;
-
-    co
+8.8.8.88.8    co
 
 
     serverThreadData* data = (serverThreadData*) arg;

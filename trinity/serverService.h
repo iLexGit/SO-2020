@@ -15,13 +15,11 @@
 #include "Audios.h"
 
 typedef struct{
-    Conf* config;
+    char* rx_data;
     int conn;
 }serverThreadData;
 
 int serverService();
 
-void* serverServiceThread_aux();
-
-void serverServiceThread(int);
+void* serverServiceThread(void*);
 #endif //PRACTICA_SO_SERVERSERVICE_H

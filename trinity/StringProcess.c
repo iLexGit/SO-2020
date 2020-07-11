@@ -83,6 +83,26 @@ int readConfigurationFile(char * path){
 
 }
 
+char* extreuMissatge(char* text){
+    printf("Extreurem missatge de:\n\t\t%s\n", text);
+    char* retornar = (char*)malloc(sizeof(char));
+    int i = 0;
+    int scanner = 0;
+    while(text[scanner] != '\"'){scanner++;}
+    scanner++;
+    while(text[scanner] != '\"'){
+        retornar[i] = text[scanner];
+        i++;
+        retornar = (char*)realloc(retornar, i+1);
+        scanner++;
+    }
+    printf("extreuMissatge:\t%s\n", retornar);
+    if ((text[scanner+1] =='\0' || text[scanner+1] =='\n') && strlen(retornar) < 180){
+        return retornar;
+    }
+    return "ERROR\0";
+
+}
 
 
 char* selectWord(int n, char* texto){
@@ -96,11 +116,12 @@ char* selectWord(int n, char* texto){
         word = (char*)malloc(sizeof(char));
         posicio = 0;
         while((texto[lletra] != ' ') && (texto[lletra] != '\0')){
-            word[posicio] = texto[lletra];
-            word = (char*)realloc(word,sizeof(char) * (posicio + 2));
-            posicio++;
-            lletra++;
-
+            if(texto[lletra] != "\""){
+                word[posicio] = texto[lletra];
+                word = (char*)realloc(word,sizeof(char) * (posicio + 2));
+                posicio++;
+                lletra++;
+            }
         }
 
 

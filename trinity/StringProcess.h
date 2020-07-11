@@ -21,5 +21,6 @@ int readConfigurationFile(char*);
 
 char* selectWord(int, char*);
 
+char* extreuMissatge(char*);
 
 #endif //PRACTICA_SO_STRINGPROCESS_H

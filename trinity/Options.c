@@ -4,7 +4,21 @@
 
 #include "Options.h"
 
+static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 
+void* threadBroadcastRead(void* arg){
+    int i = (int)arg;
+    llegeixTrama(connexions[i].fd);
+    char* String = (char*)malloc(sizeof(char)*(strlen("[] Cool!\n")+strlen(connexions[i].name)+1));
+    sprintf(String,"[%s] Cool!\n", connexions[i].name);
+
+    pthread_mutex_lock(&mutex);
+    printf("Thread broadcast wait per => %s", connexions[i].name);
+    write(1, String, strlen(String));
+    pthread_mutex_unlock(&mutex);
+
+    return (void*)1;
+}
 
 
 
@@ -152,18 +166,20 @@ int whichCommand(char* comanda) {
         printf("options.c user %s\n",user);
         if((strcmp(user, "ERROR")!=0) && (strcmp(message, "ERROR")!=0)){
 
-            printf("holi\n");
-
+            printf("\n");
+            //free(message);
             if(!readTextInput(comanda, message)){write(0, SENT_MESSAGE_ERR, strlen(SENT_MESSAGE_ERR)); free(user); return 0;}
 
+            char* missatge = extreuMissatge(comanda);
+            if(strcmp(missatge, "ERROR") == 0){write(0, SENT_MESSAGE_ERR, strlen(SENT_MESSAGE_ERR)); free(user); return 0;}
 
-
+            printf("SAY reconegut => missatge: '%s'\n", missatge);
             for (i=0;i<numConnexions;i++){
                 if (connexions[i].name != NULL){
                     if (strcmp(connexions[i].name,user)==0) {
-                        printf("options.c message %s\n",message);
+                        printf("options.c message %s\n",missatge);
                         printf("el file descriptor es %d\n",connexions[i].fd);
-                        Trama say = generaTrama(SAY_CLI, message);
+                        Trama say = generaTrama(SAY_CLI, missatge);
 
 int n = write(connexions[i].fd, &say.type, 1);
 printf("\n\nla ene es %d\n\n",n);
@@ -214,7 +230,21 @@ printf("\n\nla ene es %d\n\n",n);
             free(message);
             if(!readTextInput(comanda, message)){write(0, SENT_MESSAGE_ERR, strlen(SENT_MESSAGE_ERR)); return 0;}
 
-            //printf("Broadcast reconegut => missatge: '%s'\n", message);
+            printf("Broadcast reconegut => missatge: '%s'\n", message);
+            Trama broadcast = generaTrama(BROAD_CLI, message);
+            for (int i = 0; i < numConnexions; i++){
+                if (connexions[i].name != NULL){
+                    //if de comprovació de canal obert
+                    write(connexions[i].fd, &broadcast.type, 1);
+                    write(connexions[i].fd, broadcast.header, strlen(broadcast.header));
+                    write(connexions[i].fd, &broadcast.length, 2);
+                    write(connexions[i].fd, broadcast.data, broadcast.length);
+
+                    pthread_t thread_broadcast;
+                    int thread = pthread_create(&thread_broadcast, NULL, threadBroadcastRead, (void*)i);
+                }
+            }
+
 
             free(message);
             free(comanda);
