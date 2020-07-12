@@ -47,9 +47,9 @@ int whichCommand(char* comanda) {
                 if (connexions[i].name != NULL) {
                     if (strcmp(connexions[i].name, user) == 0) {
                         Trama shaudios= generaTrama(SHAUDIO_CLI,"");
-                        if(write(connexions[i].fd, &shaudios.type, 1)) {
-
-                            write(connexions[i].fd, shaudios.header, strlen(shaudios.header));
+                        write(connexions[i].fd, &shaudios.type, 1);
+                        write(connexions[i].fd, shaudios.header, strlen(shaudios.header));
+                        if(!PIPE_SIGNAL){
                             write(connexions[i].fd, &shaudios.length, 2);
 
                             /*shaudios.header = (char*) realloc(shaudios.header,0);
@@ -65,6 +65,7 @@ int whichCommand(char* comanda) {
                             write(1, "\n", 1);
                         }
                         else{
+                            PIPE_SIGNAL = 0;
                             char* text = (char*)malloc((strlen(connexions[i].name) + strlen("l'usuari  ja no està connectat\n")) * sizeof(char) + 1);
 
                             sprintf(text,"l'usuari %s ja no està connectat\n",connexions[i].name);
@@ -181,22 +182,24 @@ int whichCommand(char* comanda) {
                         printf("el file descriptor es %d\n",connexions[i].fd);
                         Trama say = generaTrama(SAY_CLI, missatge);
 
-int n = write(connexions[i].fd, &say.type, 1);
-printf("\n\nla ene es %d\n\n",n);
-                        if ( n!=0){
+                        write(connexions[i].fd, &say.type, 1);
+                        write(connexions[i].fd, say.header, strlen(say.header));
+                        printf("El write ens ha deixat PIPE_SIGNAL a %d\n", PIPE_SIGNAL);
+                        if (!PIPE_SIGNAL){
 
-                                write(connexions[i].fd, say.header, strlen(say.header));
-                                write(connexions[i].fd, &say.length, 2);
-                                write(connexions[i].fd, say.data, say.length);
+                            write(connexions[i].fd, &say.length, 2);
+                            write(connexions[i].fd, say.data, say.length);
 
-                                say.header = (char*) realloc(say.header,0);
-                                say.data = (char*) realloc(say.data,0);
-                                free(say.header);
-                                free(say.data);
+                            say.header = (char*) realloc(say.header,0);
+                            say.data = (char*) realloc(say.data,0);
+                            free(say.header);
+                            free(say.data);
 
-                                Trama MSGOK = llegeixTrama(connexions[i].fd);
+                            //Trama MSGOK =
+                            llegeixTrama(connexions[i].fd);
                         }
                         else{
+                            PIPE_SIGNAL=0;
                             /*char* text;// = (char*)malloc((strlen(connexions[i].name) + strlen("l'usuari  ja no està connectat\n")) * sizeof(char) + 1);
 
                             sprintf(text,"l'usuari %s ja no està connectat\n",connexions[i].name);
@@ -207,9 +210,6 @@ printf("\n\nla ene es %d\n\n",n);
                             connexions[i].port = 0;
                             //free(text);
                         }
-
-
-
                         break;
                     }
 
@@ -227,25 +227,43 @@ printf("\n\nla ene es %d\n\n",n);
         free(word);
         char* message = selectWord(2, comanda);
         if(strcmp(message, "ERROR")!=0){
-            free(message);
+            //free(message);
             if(!readTextInput(comanda, message)){write(0, SENT_MESSAGE_ERR, strlen(SENT_MESSAGE_ERR)); return 0;}
 
-            printf("Broadcast reconegut => missatge: '%s'\n", message);
-            Trama broadcast = generaTrama(BROAD_CLI, message);
+            char* missatge = extreuMissatge(comanda);
+            if(strcmp(missatge, "ERROR") == 0){write(0, SENT_MESSAGE_ERR, strlen(SENT_MESSAGE_ERR)); return 0;}
+
+            printf("BROADCAST reconegut => missatge: '%s'\n", missatge);
+
+            Trama broadcast = generaTrama(BROAD_CLI, missatge);
             for (int i = 0; i < numConnexions; i++){
-                if (connexions[i].name != NULL){
+                if (connexions[i].name != NULL) {
                     //if de comprovació de canal obert
                     write(connexions[i].fd, &broadcast.type, 1);
                     write(connexions[i].fd, broadcast.header, strlen(broadcast.header));
-                    write(connexions[i].fd, &broadcast.length, 2);
-                    write(connexions[i].fd, broadcast.data, broadcast.length);
+                    printf("El write ens ha deixat PIPE_SIGNAL a %d\n", PIPE_SIGNAL);
+                    if (!PIPE_SIGNAL) {
+                        write(connexions[i].fd, &broadcast.length, 2);
+                        write(connexions[i].fd, broadcast.data, broadcast.length);
+                    }else{
+                        PIPE_SIGNAL=0;
+                        /*char* text;// = (char*)malloc((strlen(connexions[i].name) + strlen("l'usuari  ja no està connectat\n")) * sizeof(char) + 1);
+
+                        sprintf(text,"l'usuari %s ja no està connectat\n",connexions[i].name);
+                        write(1,text,strlen(text));*/
+                        printf("l'usuari %s ja no està connectat\n",connexions[i].name);
+                        free(connexions[i].name);
+                        connexions[i].fd = 0;
+                        connexions[i].port = 0;
+                        //free(text);
+                    }
 
                     pthread_t thread_broadcast;
                     int thread = pthread_create(&thread_broadcast, NULL, threadBroadcastRead, (void*)i);
                 }
             }
 
-
+            free(missatge);
             free(message);
             free(comanda);
             return 0;
@@ -268,8 +286,9 @@ printf("\n\nla ene es %d\n\n",n);
                     if (strcmp(connexions[i].name, user) == 0) {
 
                         Trama Download = generaTrama(DOWNLOAD_CLI, audio);
-                        if(write(connexions[i].fd, &Download.type, 1) != 0){
-                            write(connexions[i].fd, Download.header, strlen(Download.header));
+                        write(connexions[i].fd, &Download.type, 1);
+                        write(connexions[i].fd, Download.header, strlen(Download.header));
+                        if(!PIPE_SIGNAL){
                             write(connexions[i].fd, &Download.length, 2);
                             write(connexions[i].fd, Download.data, Download.length);
 
@@ -325,6 +344,7 @@ printf("\n\nla ene es %d\n\n",n);
 
                             }
                         } else{
+                            PIPE_SIGNAL = 0;
                             char* text = (char*)malloc((strlen(connexions[i].name) + strlen("l'usuari  ja no està connectat\n")) * sizeof(char) + 1);
 
                             sprintf(text,"l'usuari %s ja no està connectat\n",connexions[i].name);

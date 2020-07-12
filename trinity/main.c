@@ -10,6 +10,7 @@ int srv_numConnexions = 0;
 int sockfd = 0;
 int server = 0;
 int client=0;
+int PIPE_SIGNAL = 0;
 
 
 
@@ -25,7 +26,7 @@ void* startServer(void* arg){
     serverService();
     return (void*) 1;
 }
-static void closeProgram(int signal){
+void closeProgram(int signal){
     Trama Desconnexio;
     //Trama recepcio;
     switch (signal) {
@@ -36,17 +37,18 @@ static void closeProgram(int signal){
 
                     Desconnexio = generaTrama(EXIT_CLI,conf.name);
 
-                    if (write(connexions[i].fd, &Desconnexio.type, 1) != 0){
-                        write(connexions[i].fd, Desconnexio.header, strlen(Desconnexio.header));
+                    write(connexions[i].fd, &Desconnexio.type, 1);
+                    write(connexions[i].fd, Desconnexio.header, strlen(Desconnexio.header));
+                    if(!PIPE_SIGNAL){
                         write(connexions[i].fd, &Desconnexio.length, 2);
                         write(connexions[i].fd, Desconnexio.data, Desconnexio.length);
 
                         llegeixTrama(connexions[i].fd);
-
-                        close(connexions[i].fd);
-                        printf("hem tancat connexió amb user %s\n",connexions[i].name);
-
+                    }else{
+                        PIPE_SIGNAL = 0;
                     }
+                    close(connexions[i].fd);
+                    printf("hem tancat connexió amb user %s\n",connexions[i].name);
                     free(connexions[i].name);
 
                 }
@@ -65,16 +67,27 @@ static void closeProgram(int signal){
             exit(1);
 
             break;
+
+        case SIGPIPE:
+            printf("\n\n\tSIGPIPE INTERRUPT!!!!%d\n\n", conf.port);
+            PIPE_SIGNAL = 1;
+            break;
+
         default:
+            printf("DEFAULT DE LES INTERRUPCIONS\n");
             break;
 
     }
 }
 
+
 int main(int argc, char *argv[])
 {
     signal(SIGINT, closeProgram);
+    signal(SIGPIPE, closeProgram);
+
     write(1, STARTING_SYSTEM, strlen(STARTING_SYSTEM));
+
 
     if (argc  != 2){
         write(1,ARGC_ERROR,strlen(ARGC_ERROR));

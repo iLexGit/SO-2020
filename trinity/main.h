@@ -17,10 +17,12 @@
 int main(int, char**);
 void* startClientService(void*);
 void* startServerService(void*);
+void closeProgram(int);
 extern Connexio * connexions;
 extern int numConnexions;
 extern Conf conf;
 extern int* srvconnfds;
 extern int srv_numConnexions;
 extern int sockfd;
+extern int PIPE_SIGNAL;
 #endif //PRACTICA_SO_MAIN_H
