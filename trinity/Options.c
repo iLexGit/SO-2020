@@ -37,7 +37,7 @@ int whichCommand(char* comanda) {
         if (strcmp(word, "CONNECTIONS") == 0) {
             free(word);
             printf("Show connections reconegut\n");
-            scanConnections(conf.direccio, conf.port_list_inicial, conf.port_list_final, conf.port);
+            scanConnections(conf.port_list_inicial, conf.port_list_final, conf.port);
             free(comanda);
             return 0;
         } else if (strcmp(word, "AUDIOS") == 0) {
@@ -259,7 +259,7 @@ int whichCommand(char* comanda) {
                     }
 
                     pthread_t thread_broadcast;
-                    int thread = pthread_create(&thread_broadcast, NULL, threadBroadcastRead, (void*)i);
+                    pthread_create(&thread_broadcast, NULL, threadBroadcastRead, i);
                 }
             }
 

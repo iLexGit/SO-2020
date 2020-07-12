@@ -15,13 +15,13 @@ int PIPE_SIGNAL = 0;
 
 
 
-void* startClient(void* arg){
+void* startClient(){
     printf("start client\n");
     clientService();
     return (void*)1;
 }
 
-void* startServer(void* arg){
+void* startServer(){
     printf("start server\n");
     serverService();
     return (void*) 1;

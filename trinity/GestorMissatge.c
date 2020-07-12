@@ -1,15 +1,6 @@
 #include "GestorMissatge.h"
 
 Trama generaTrama(int Opcio, char* data){
-
-    char type;
-
-    char llargada [2];
-    char* String;
-    unsigned int llargadeta;
-    //llargada = strlen(data);
-    llargada[0] = strlen(data)/255;
-    llargada[1] = strlen(data)%255;
     Trama trama;
 
     switch(Opcio){
@@ -221,8 +212,6 @@ Trama generaTramaAudio(char* data, int length){
 
 Trama llegeixTrama(int conn){
     Trama trama;
-    char aux;
-    int a,b;
     read(conn, &trama.type, 1);
     if (trama.type >= '0' && trama.type <= '6') {
 

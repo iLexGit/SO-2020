@@ -44,7 +44,7 @@ void* serverServiceThread(void* arg){
         free(recepcio.data);*/
 
         recepcio = llegeixTrama(srvconnfds[conn]);
-        printf("despres llegeixtrama type es %\n",recepcio.type);
+        printf("despres llegeixtrama type es %c\n",recepcio.type);
         //printf("%c\n%s\n%d\n%s\n", recepcio.type, recepcio.header, recepcio.length, recepcio.data);
         switch(recepcio.type - '0') {
             case 1:
@@ -93,6 +93,7 @@ void* serverServiceThread(void* arg){
                 if (dr == NULL)  // opendir returns NULL if couldn't open directory
                 {
                     printf("Could not open current directory\n" );
+                    break;
                     //return 0;
                 }else {
 
@@ -109,7 +110,7 @@ void* serverServiceThread(void* arg){
                     closedir(dr);
                     List[strlen(List)-1] = '\0';
 
-                    for(int x=1;x<=strlen(List);x++){
+                    for(int x=1; x <= (int)(strlen(List));x++){
                         List[x-1]=List[x];
                     }
                     printf("%s\n",List);
@@ -119,9 +120,8 @@ void* serverServiceThread(void* arg){
                     write(srvconnfds[conn], &AudioList.length, 2);
                     write(srvconnfds[conn], AudioList.data, AudioList.length);
                     printf("trama show audios enviada\n");
+                    break;
                 }
-
-                break;
             }
 
             case 5: {
@@ -320,8 +320,6 @@ int serverService(){
     pthread_t clients;
     srvconnfds = (int*) malloc(sizeof(int));
 
-
-    serverThreadData data;
     //Fem el accept
     while(1){
 

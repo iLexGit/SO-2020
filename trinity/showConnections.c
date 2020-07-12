@@ -19,7 +19,7 @@ int checkDomain(char* domain, struct in_addr* address){
 
 
 
-void scanConnections (char* domain, int start , int end, int self){
+void scanConnections (int start , int end, int self){
     //printf("Procedim a escanejar adreça %s tot els ports del rang %d => %d\n", domain, start, end);
     //char* puertos[2];
     int pfd[2];

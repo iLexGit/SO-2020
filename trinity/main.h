@@ -15,8 +15,8 @@
 
 
 int main(int, char**);
-void* startClientService(void*);
-void* startServerService(void*);
+void* startClientService();
+void* startServerService();
 void closeProgram(int);
 extern Connexio * connexions;
 extern int numConnexions;

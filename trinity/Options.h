@@ -12,7 +12,6 @@
 #include "serverService.h"
 #include "showConnections.h"
 #include "StringProcess.h"
-#include "Connecta.h"
 #include "Audios.h"
 
 int whichCommand(char *);

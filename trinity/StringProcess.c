@@ -116,7 +116,7 @@ char* selectWord(int n, char* texto){
         word = (char*)malloc(sizeof(char));
         posicio = 0;
         while((texto[lletra] != ' ') && (texto[lletra] != '\0')){
-            if(texto[lletra] != "\""){
+            if(texto[lletra] != '\"'){
                 word[posicio] = texto[lletra];
                 word = (char*)realloc(word,sizeof(char) * (posicio + 2));
                 posicio++;
