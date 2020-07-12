@@ -106,6 +106,7 @@ void* serverServiceThread(void* arg){
                             List = (char *) realloc(List, sizeof(List) + sizeof(de->d_name) + 1);
                             sprintf(List, "%s%s\n", List, de->d_name);
                         }
+                        
                         i++;
                     }
                     closedir(dr);
@@ -220,7 +221,7 @@ void* serverServiceThread(void* arg){
                                 write(srvconnfds[conn], Resposta.header, strlen(DOWNLOAD_SER_DATA_HEADER));
                                 write(srvconnfds[conn], &Resposta.length, 2);
                                 printf("%s\n",Resposta.data);
-                                if(Resposta.length > 0){write(conn, Resposta.data, Resposta.length);}
+                                if(Resposta.length > 0){write(srvconnfds[conn], Resposta.data, Resposta.length);}
                                 lectura = (char*) realloc(lectura,0);
 
                                 /*Resposta.header = (char*) realloc(Resposta.header,0);
