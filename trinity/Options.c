@@ -3,11 +3,13 @@
 //
 
 #include "Options.h"
+#include "GestorMissatge.h"
 
 static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 
 void* threadBroadcastRead(void* arg){
-    int i = (int)arg;
+    long var = (long)arg;
+    int i = (int)var;
     llegeixTrama(connexions[i].fd);
     char* String = (char*)malloc(sizeof(char)*(strlen("[] Cool!\n")+strlen(connexions[i].name)+1));
     sprintf(String,"[%s] Cool!\n", connexions[i].name);
@@ -259,7 +261,8 @@ int whichCommand(char* comanda) {
                     }
 
                     pthread_t thread_broadcast;
-                    pthread_create(&thread_broadcast, NULL, threadBroadcastRead, i);
+                    long var = i;
+                    pthread_create(&thread_broadcast, NULL, threadBroadcastRead, (void*)var);
                 }
             }
 

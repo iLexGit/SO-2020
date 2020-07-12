@@ -4,6 +4,7 @@
 
 #include <dirent.h>
 #include "serverService.h"
+#include "GestorMissatge.h"
 
 
 void* serverServiceThread(void* arg){
@@ -270,7 +271,7 @@ void* serverServiceThread(void* arg){
 
                     break;
                 }
-
+                break;
             }
 
             case 6: {

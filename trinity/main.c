@@ -1,6 +1,7 @@
 
 #include "main.h"
 #include <pthread.h>
+#include "GestorMissatge.h"
 
 Connexio * connexions;
 int numConnexions = 0;
